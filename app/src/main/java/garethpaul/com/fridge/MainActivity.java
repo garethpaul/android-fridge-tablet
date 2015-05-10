@@ -3,6 +3,7 @@ package garethpaul.com.fridge;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,14 +15,17 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
-
+import org.apache.commons.io.FileUtils;
 
 public class MainActivity extends Activity {
 
     private ArrayList<String> items;
     private ArrayAdapter<String> itemsAdapter;
     private ListView lvItems;
+    private String textFileName = "food.txt";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,14 +36,16 @@ public class MainActivity extends Activity {
 
         setContentView(R.layout.activity_main);
 
-        // Add ListView
+        // Add items ListView
         lvItems = (ListView) findViewById(R.id.listView);
         items = new ArrayList<String>();
+
+        // Read existing items from file
+        readItems();
+
         itemsAdapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1, items);
         lvItems.setAdapter(itemsAdapter);
-        items.add("First Item");
-        items.add("Second Item");
 
         // Remove warnings
         EditText etNewItem = (EditText) findViewById(R.id.editText);
@@ -63,6 +69,8 @@ public class MainActivity extends Activity {
                         items.remove(pos);
                         // Refresh the adapter
                         itemsAdapter.notifyDataSetChanged();
+                        //
+                        writeItems();
                         // Return true consumes the long click event (marks it handled)
                         return true;
                     }
@@ -70,19 +78,48 @@ public class MainActivity extends Activity {
                 });
     }
 
+    // Adds item to view
     public void onAddItem(View v) {
         EditText etNewItem = (EditText) findViewById(R.id.editText);
         String itemText = etNewItem.getText().toString();
 
-        // Add the item to the listview
+        // Add the item to the ListView
         itemsAdapter.add(itemText);
 
         // Set the text to empty
         etNewItem.setText("");
 
+        // Write items to persistent storage
+        writeItems();
+
         // Hide the keyboard
         InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         mgr.hideSoftInputFromWindow(etNewItem.getWindowToken(), 0);
+
+    }
+
+    // Read Items from persistent storage
+    private void readItems() {
+        Log.v("readItems", "read");
+        File filesDir = getFilesDir();
+        File todoFile = new File(filesDir, textFileName);
+        try {
+            items = new ArrayList<String>(FileUtils.readLines(todoFile));
+            Log.v("items", items.toString());
+        } catch (IOException e) {
+            items = new ArrayList<String>();
+        }
+    }
+
+    // Write items to persistent storage
+    private void writeItems() {
+        File filesDir = getFilesDir();
+        File todoFile = new File(filesDir, textFileName);
+        try {
+            FileUtils.writeLines(todoFile, items);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
