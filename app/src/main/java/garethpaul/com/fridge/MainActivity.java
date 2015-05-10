@@ -3,6 +3,9 @@ package garethpaul.com.fridge;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.text.format.DateFormat;
+import android.text.format.Time;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,10 +17,16 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import org.apache.commons.io.FileUtils;
 
 public class MainActivity extends Activity {
@@ -25,6 +34,8 @@ public class MainActivity extends Activity {
     private ArrayList<String> items;
     private ArrayAdapter<String> itemsAdapter;
     private ListView lvItems;
+    private TextView dateTime;
+
     private String textFileName = "food.txt";
 
     @Override
@@ -56,8 +67,23 @@ public class MainActivity extends Activity {
         // SetupListView
         setupListViewListener();
 
+        // Setup Time
+        setupTime();
     }
 
+    // Displays current date on top bar
+    private void setupTime(){
+
+        Time today = new Time(Time.getCurrentTimezone());
+        today.setToNow();
+        String date = today.month + "-";
+        date += today.monthDay + "-";
+        date += today.year;
+
+        dateTime = (TextView) findViewById(R.id.dateTime);
+        dateTime.setText(date);
+
+    }
     // Attaches a long click listener to the ListView
     private void setupListViewListener() {
         lvItems.setOnItemLongClickListener(
