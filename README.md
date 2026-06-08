@@ -1,5 +1,8 @@
 # Android Fridge Tablet
 
+<!-- README-OVERVIEW-IMAGE -->
+![Project overview](docs/readme-overview.svg)
+
 Legacy Android tablet app for maintaining a simple fridge list on-device.
 
 ## Toolchain
