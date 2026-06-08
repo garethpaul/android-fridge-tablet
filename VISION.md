@@ -48,3 +48,6 @@ data flow, credentials, and user controls.
 - Broad Android modernization mixed with unrelated product changes
 - Local machine paths, generated build artifacts, or signing material
 - Changes that make the legacy project harder to verify from a fresh checkout
+
+This list is a roadmap guardrail, not a permanent rule.
+Strong user demand and strong technical rationale can change it.
