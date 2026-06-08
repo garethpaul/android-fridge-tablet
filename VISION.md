@@ -1,5 +1,8 @@
 ## Android Fridge Tablet Vision
 
+This document explains the current state and direction of the project.
+Project overview and developer docs: [`README.md`](README.md)
+
 Android Fridge Tablet is a legacy Android tablet app for maintaining a simple
 fridge list on-device.
 
