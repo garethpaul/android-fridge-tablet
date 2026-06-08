@@ -44,6 +44,13 @@ require_contains "app/build.gradle" "buildToolsVersion \"24.0.3\"" \
 require_contains "app/build.gradle" "targetSdkVersion 21" \
   "App module must preserve target SDK 21."
 
+require_absent "app/src/main/AndroidManifest.xml" \
+  "android.permission.WRITE_EXTERNAL_STORAGE" \
+  "Fridge app must not request external storage write permission."
+require_absent "app/src/main/AndroidManifest.xml" \
+  "android.permission.READ_EXTERNAL_STORAGE" \
+  "Fridge app must not request external storage read permission."
+
 if grep -Fq "today.month + \"-\"" "$MAIN_ACTIVITY"; then
   printf '%s\n' "Date display must not use zero-based Time.month." >&2
   exit 1
@@ -51,9 +58,10 @@ fi
 
 for pattern in \
   'DISPLAY_DATE_PATTERN = "M-d-yyyy"' \
-  "new SimpleDateFormat(DISPLAY_DATE_PATTERN, Locale.US).format(new Date())"; do
+  "new SimpleDateFormat(DISPLAY_DATE_PATTERN, Locale.US).format(new Date())" \
+  "getFilesDir()"; do
   if ! grep -Fq "$pattern" "$MAIN_ACTIVITY"; then
-    printf '%s\n' "Missing date-format baseline pattern: $pattern" >&2
+    printf '%s\n' "Missing source baseline pattern: $pattern" >&2
     exit 1
   fi
 done

@@ -41,6 +41,10 @@ Additional scan context:
 ```bash
 git clone https://github.com/garethpaul/android-fridge-tablet.git
 cd android-fridge-tablet
+scripts/check-baseline.sh
+./gradlew lint --no-daemon
+./gradlew test --no-daemon
+./gradlew assembleDebug --no-daemon
 ```
 
 The setup commands above are derived from repository files. Legacy mobile, Python, or JavaScript samples may require older SDKs or package versions than a modern workstation uses by default.
@@ -51,13 +55,16 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 
 ## Testing and Verification
 
-- `./gradlew test` or Android Studio's test runner when the SDK is configured
+- `scripts/check-baseline.sh` - runs SDK-free Fridge tablet baseline checks.
+- `./gradlew lint --no-daemon`, `./gradlew test --no-daemon`, and `./gradlew assembleDebug --no-daemon` when the Android SDK is configured.
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
 
 ## Configuration and Secrets
 
 - No required secret or credential file was identified in the repository scan. If you add integrations later, keep secrets out of git.
+- This legacy Android baseline pins Android build-tools 24.0.3 and preserves target SDK 21.
+- Fridge items are stored in the app's internal files directory, so the app does not request external storage permissions.
 
 ## Security and Privacy Notes
 
@@ -68,6 +75,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 ## Maintenance Notes
 
 - This looks like a legacy Android project or sample. Expect Android SDK, Gradle, and support-library versions to matter.
+- The current baseline keeps Gradle 2.2.1, Android Gradle Plugin 1.1.0, compile SDK 22, target SDK 21, and Android build-tools 24.0.3.
+- The date header uses one-based formatting through `SimpleDateFormat`.
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.
 - See `VISION.md` for project direction and contribution guardrails.
 

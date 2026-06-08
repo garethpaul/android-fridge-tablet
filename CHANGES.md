@@ -9,3 +9,5 @@
   redundant right-alignment attribute.
 - Removed unused starter string and dimension resources and documented the
   narrow legacy lint baseline for the preserved target SDK.
+- Removed unnecessary external storage permissions because fridge items are
+  stored in the app's internal files directory.
