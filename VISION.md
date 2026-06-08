@@ -42,7 +42,7 @@ features need clear privacy notes and opt-in behavior.
 The current app should remain local-first unless a separate design explains the
 data flow, credentials, and user controls.
 
-## What We Will Not Merge For Now
+## What We Will Not Merge (For Now)
 
 - Cloud sync or account features without privacy and configuration docs
 - Broad Android modernization mixed with unrelated product changes
