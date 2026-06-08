@@ -36,6 +36,11 @@ Contribution rules:
 
 ## Security And Privacy
 
+Canonical security policy and reporting:
+
+- [`SECURITY.md`](SECURITY.md)
+
+
 Fridge-list data is personal household data. Future sync, sharing, or backend
 features need clear privacy notes and opt-in behavior.
 
