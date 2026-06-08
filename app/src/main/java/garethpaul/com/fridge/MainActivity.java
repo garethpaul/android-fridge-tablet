@@ -3,9 +3,6 @@ package garethpaul.com.fridge;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
-import android.text.format.DateFormat;
-import android.text.format.Time;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,9 +20,8 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.Date;
+import java.util.Locale;
 
 import org.apache.commons.io.FileUtils;
 
@@ -37,6 +33,7 @@ public class MainActivity extends Activity {
     private TextView dateTime;
 
     private String textFileName = "food.txt";
+    private static final String DISPLAY_DATE_PATTERN = "M-d-yyyy";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,11 +71,7 @@ public class MainActivity extends Activity {
     // Displays current date on top bar
     private void setupTime(){
 
-        Time today = new Time(Time.getCurrentTimezone());
-        today.setToNow();
-        String date = today.month + "-";
-        date += today.monthDay + "-";
-        date += today.year;
+        String date = new SimpleDateFormat(DISPLAY_DATE_PATTERN, Locale.US).format(new Date());
 
         dateTime = (TextView) findViewById(R.id.dateTime);
         dateTime.setText(date);

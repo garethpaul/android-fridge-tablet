@@ -46,7 +46,8 @@ If Gradle reports that the SDK location cannot be found, configure
 ## Modernization Notes
 
 This baseline keeps the app on Gradle 2.2.1, Android Gradle Plugin 1.1.0, and
-target SDK 21 while moving build resolution to HTTPS Maven Central and compiling
-against installed SDK packages with a host-compatible `aapt`. A future
-modernization pass should update the Gradle stack, target SDK, storage behavior,
-date handling, and behavior tests together with emulator or device verification.
+target SDK 21 while moving build resolution to HTTPS Maven Central, compiling
+against installed SDK packages with a host-compatible `aapt`, and ensuring the
+date header uses one-based formatting. A future modernization pass should
+update the Gradle stack, target SDK, storage behavior, dependency versions, and
+behavior tests together with emulator or device verification.
