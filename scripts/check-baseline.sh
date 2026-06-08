@@ -3,6 +3,8 @@ set -eu
 
 ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 MAIN_ACTIVITY="$ROOT_DIR/app/src/main/java/garethpaul/com/fridge/MainActivity.java"
+LAYOUT="$ROOT_DIR/app/src/main/res/layout/activity_main.xml"
+README="$ROOT_DIR/README.md"
 
 require_contains() {
   file=$1
@@ -64,5 +66,59 @@ require_contains "README.md" "target SDK 21" \
   "README must document the preserved target SDK."
 require_contains "README.md" "date header uses one-based formatting" \
   "README must document the date-format baseline."
+
+if [ ! -f "$ROOT_DIR/CHANGES.md" ]; then
+  printf '%s\n' "CHANGES.md is missing." >&2
+  exit 1
+fi
+
+require_contains "app/lint.xml" "LintError" \
+  "lint.xml must document the obsolete lint API database limitation."
+require_contains "app/lint.xml" "OldTargetApi" \
+  "lint.xml must document the preserved target SDK baseline."
+require_absent "app/src/main/res/values/strings.xml" "hello_world" \
+  "Unused starter string must not be restored."
+require_absent "app/src/main/res/values/dimens.xml" "activity_horizontal_margin" \
+  "Unused horizontal margin dimen must not be restored."
+
+if [ -f "$ROOT_DIR/app/src/main/res/values-w820dp/dimens.xml" ]; then
+  printf '%s\n' "Unused w820dp dimen override must not be restored." >&2
+  exit 1
+fi
+
+if grep -Fq "layout_alignParentRight" "$LAYOUT"; then
+  printf '%s\n' "Layout must not use redundant right-alignment attributes." >&2
+  exit 1
+fi
+
+if ! grep -Fq 'android:hint="@string/item_hint"' "$LAYOUT"; then
+  printf '%s\n' "Item input must provide a hint." >&2
+  exit 1
+fi
+
+if ! grep -Fq 'android:inputType="textCapSentences"' "$LAYOUT"; then
+  printf '%s\n' "Item input must declare an inputType." >&2
+  exit 1
+fi
+
+if grep -Eq 'android:text="[^@]' "$LAYOUT"; then
+  printf '%s\n' "Layout text must use string resources." >&2
+  exit 1
+fi
+
+if ! grep -Fq "./gradlew lint --no-daemon" "$README"; then
+  printf '%s\n' "README must document Gradle lint verification." >&2
+  exit 1
+fi
+
+if ! grep -Fq "./gradlew test --no-daemon" "$README"; then
+  printf '%s\n' "README must document Gradle test verification." >&2
+  exit 1
+fi
+
+if ! grep -Fq "./gradlew assembleDebug --no-daemon" "$README"; then
+  printf '%s\n' "README must document Gradle build verification." >&2
+  exit 1
+fi
 
 printf '%s\n' "Fridge tablet baseline checks passed."

@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Fridge</string>
-
-    <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="date_placeholder">Today</string>
+    <string name="add_item">Add Item</string>
+    <string name="item_hint">New fridge item</string>
 </resources>
