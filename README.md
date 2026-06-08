@@ -1,5 +1,8 @@
 # android-fridge-tablet
 
+<!-- README-OVERVIEW-IMAGE -->
+![Project overview](docs/readme-overview.svg)
+
 ## Overview
 
 `garethpaul/android-fridge-tablet` is an Android application or sample. The App for my fridge.
@@ -77,4 +80,3 @@ Keep changes small and tied to the project that is already present in this repos
 Prior README summary:
 
 > Android Fridge Tablet <!-- README-OVERVIEW-IMAGE --> Legacy Android tablet app for maintaining a simple fridge list on-device. Toolchain This project currently uses the original Android build stack: - Gradle wrapper 2.2.1 - Android Gradle Plugin 1.1.0 - compile SDK 22 / target SDK 21 - Android build-tools 24.0.3 - Commons IO 2.0.1 Configure an Android SDK path before running Gradle: ```sh export ANDROID_HOME=/home/gjones/android-sdk
-
