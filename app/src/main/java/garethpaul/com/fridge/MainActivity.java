@@ -83,7 +83,9 @@ public class MainActivity extends Activity {
         String date = new SimpleDateFormat(DISPLAY_DATE_PATTERN, Locale.US).format(new Date());
 
         dateTime = (TextView) findViewById(R.id.dateTime);
-        dateTime.setText(date);
+        if (dateTime != null) {
+            dateTime.setText(date);
+        }
 
     }
     // Attaches a long click listener to the ListView

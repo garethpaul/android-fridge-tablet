@@ -2,6 +2,9 @@
 
 ## 2026-06-09
 
+- Guarded Fridge date header updates when stale tablet layouts omit the header
+  view.
+- Added SDK-free baseline coverage for the date header null guard.
 - Guarded fridge list view setup and long-click removal positions so stale
   tablet layouts or callbacks do not crash the activity.
 - Pinned fridge item file reads and writes to UTF-8 and added an SDK-free
