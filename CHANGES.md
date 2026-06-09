@@ -2,6 +2,8 @@
 
 ## 2026-06-09
 
+- Guarded options-menu callbacks when stale action-bar paths provide missing
+  menu or menu item values.
 - Guarded Fridge date header updates when stale tablet layouts omit the header
   view.
 - Added SDK-free baseline coverage for the date header null guard.

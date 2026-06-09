@@ -78,6 +78,8 @@ for pattern in \
   "if (lvItems == null)" \
   "if (dateTime != null)" \
   "if (pos < 0 || pos >= items.size())" \
+  "if (menu == null)" \
+  "if (item == null)" \
   "private String normalizedItemText(EditText itemInput)" \
   "if (itemInput == null || itemInput.getText() == null)" \
   "return itemInput.getText().toString().trim();" \
@@ -148,6 +150,8 @@ require_contains "README.md" "missing list view" \
   "README must document the fridge list view null guard."
 require_contains "README.md" "missing date header view" \
   "README must document the fridge date header null guard."
+require_contains "README.md" "missing options menu" \
+  "README must document the fridge menu callback null guard."
 
 if [ ! -f "$ROOT_DIR/CHANGES.md" ]; then
   printf '%s\n' "CHANGES.md is missing." >&2
@@ -220,6 +224,11 @@ fi
 
 if ! grep -Fq "make check" "$ROOT_DIR/docs/plans/2026-06-09-fridge-date-header-guard.md"; then
   printf '%s\n' "Fridge date header guard plan must document make check verification." >&2
+  exit 1
+fi
+
+if ! grep -Fq "make check" "$ROOT_DIR/docs/plans/2026-06-09-fridge-menu-callback-guards.md"; then
+  printf '%s\n' "Fridge menu callback guard plan must document make check verification." >&2
   exit 1
 fi
 

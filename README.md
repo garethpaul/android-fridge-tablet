@@ -77,6 +77,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   ignored before item removal.
 - A missing date header view skips the header update so stale tablet layouts do
   not crash startup.
+- missing options menu callbacks return without inflating or handling menu
+  items so stale action-bar paths do not crash the activity.
 - Fridge item storage uses UTF-8 for local reads and writes instead of the
   device default charset.
 - Keyboard restart and hide calls guard nullable input method services so
@@ -109,6 +111,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   null and stale-position guards.
 - See `docs/plans/2026-06-09-fridge-date-header-guard.md` for the date header
   null guard.
+- See `docs/plans/2026-06-09-fridge-menu-callback-guards.md` for menu callback
+  null guards.
 - See `docs/plans/2026-06-09-fridge-log-privacy.md` for the local item logging
   privacy contract.
 - See `docs/plans/2026-06-09-fridge-backup-policy.md` for the local data backup
