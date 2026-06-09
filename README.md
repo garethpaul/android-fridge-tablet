@@ -58,6 +58,8 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 - `make check` - runs the source baseline and Android SDK-backed Gradle checks
   when `ANDROID_HOME` is configured
 - `scripts/check-baseline.sh` - runs SDK-free Fridge tablet baseline checks.
+- The baseline check protects internal storage, date formatting, layout
+  resources, and fridge item input normalization.
 - `./gradlew lint --no-daemon`, `./gradlew test --no-daemon`, and `./gradlew assembleDebug --no-daemon` when the Android SDK is configured.
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
@@ -67,6 +69,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - No required secret or credential file was identified in the repository scan. If you add integrations later, keep secrets out of git.
 - This legacy Android baseline pins Android build-tools 24.0.3 and preserves target SDK 21.
 - Fridge items are stored in the app's internal files directory, so the app does not request external storage permissions.
+- Fridge item input is trimmed before persistence, and whitespace-only entries
+  are ignored.
 
 ## Security and Privacy Notes
 
@@ -83,6 +87,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - See `VISION.md` for project direction and contribution guardrails.
 - See `docs/plans/2026-06-08-fridge-check-wrapper.md` for the root
   verification wrapper baseline.
+- See `docs/plans/2026-06-09-fridge-item-input-normalization.md` for the item
+  input normalization contract.
 
 ## Contributing
 

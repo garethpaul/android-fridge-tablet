@@ -13,3 +13,5 @@
   narrow legacy lint baseline for the preserved target SDK.
 - Removed unnecessary external storage permissions because fridge items are
   stored in the app's internal files directory.
+- Trimmed fridge item input before persistence and ignored whitespace-only
+  entries.

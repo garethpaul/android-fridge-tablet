@@ -59,12 +59,22 @@ fi
 for pattern in \
   'DISPLAY_DATE_PATTERN = "M-d-yyyy"' \
   "new SimpleDateFormat(DISPLAY_DATE_PATTERN, Locale.US).format(new Date())" \
-  "getFilesDir()"; do
+  "getFilesDir()" \
+  "String itemText = normalizedItemText(etNewItem);" \
+  "if (itemText.length() == 0)" \
+  "private String normalizedItemText(EditText itemInput)" \
+  "return itemInput.getText().toString().trim();" \
+  "itemsAdapter.add(itemText);"; do
   if ! grep -Fq "$pattern" "$MAIN_ACTIVITY"; then
     printf '%s\n' "Missing source baseline pattern: $pattern" >&2
     exit 1
   fi
 done
+
+if grep -Fq "String itemText = etNewItem.getText().toString();" "$MAIN_ACTIVITY"; then
+  printf '%s\n' "Fridge items must not persist raw EditText text." >&2
+  exit 1
+fi
 
 require_contains "README.md" "scripts/check-baseline.sh" \
   "README must document the SDK-free baseline check."

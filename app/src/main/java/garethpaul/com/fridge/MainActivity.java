@@ -100,7 +100,10 @@ public class MainActivity extends Activity {
     // Adds item to view
     public void onAddItem(View v) {
         EditText etNewItem = (EditText) findViewById(R.id.editText);
-        String itemText = etNewItem.getText().toString();
+        String itemText = normalizedItemText(etNewItem);
+        if (itemText.length() == 0) {
+            return;
+        }
 
         // Add the item to the ListView
         itemsAdapter.add(itemText);
@@ -115,6 +118,10 @@ public class MainActivity extends Activity {
         InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         mgr.hideSoftInputFromWindow(etNewItem.getWindowToken(), 0);
 
+    }
+
+    private String normalizedItemText(EditText itemInput) {
+        return itemInput.getText().toString().trim();
     }
 
     // Read Items from persistent storage

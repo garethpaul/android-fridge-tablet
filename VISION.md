@@ -20,6 +20,7 @@ Priority:
 - Preserve the documented Gradle, Android plugin, and SDK baseline
 - Keep the on-device fridge-list workflow understandable
 - Maintain SDK-free baseline verification
+- Keep fridge item creation from persisting empty-looking entries
 - Avoid hiding old toolchain requirements or local SDK assumptions
 
 Next priorities:
