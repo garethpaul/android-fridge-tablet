@@ -4,6 +4,8 @@
 
 - Removed verbose logging of stored fridge item contents and added an SDK-free
   contract requiring sanitized persistence warnings.
+- Disabled Android backup for the Fridge app and added a manifest contract so
+  local fridge-list data is not backed up by default.
 
 ## 2026-06-08
 

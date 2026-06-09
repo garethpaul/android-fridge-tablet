@@ -22,6 +22,7 @@ Priority:
 - Maintain SDK-free baseline verification
 - Keep fridge item creation from persisting empty-looking entries
 - Keep personal fridge-list contents out of diagnostic logs
+- Keep local fridge-list contents out of Android backups by default
 - Avoid hiding old toolchain requirements or local SDK assumptions
 
 Next priorities:

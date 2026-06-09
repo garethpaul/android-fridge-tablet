@@ -50,6 +50,12 @@ require_absent "app/src/main/AndroidManifest.xml" \
 require_absent "app/src/main/AndroidManifest.xml" \
   "android.permission.READ_EXTERNAL_STORAGE" \
   "Fridge app must not request external storage read permission."
+require_contains "app/src/main/AndroidManifest.xml" \
+  'android:allowBackup="false"' \
+  "Fridge app must disable Android backups for local item storage."
+require_absent "app/src/main/AndroidManifest.xml" \
+  'android:allowBackup="true"' \
+  "Fridge app must not allow Android backups."
 
 if grep -Fq "today.month + \"-\"" "$MAIN_ACTIVITY"; then
   printf '%s\n' "Date display must not use zero-based Time.month." >&2
