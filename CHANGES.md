@@ -6,6 +6,8 @@
   contract against platform-default charset persistence.
 - Guarded Fridge keyboard service lookups before restarting or hiding input so
   tablet environments without an input method service do not crash the activity.
+- Guarded item creation and keyboard setup when the legacy item input view is
+  unavailable.
 - Removed verbose logging of stored fridge item contents and added an SDK-free
   contract requiring sanitized persistence warnings.
 - Disabled Android backup for the Fridge app and added a manifest contract so

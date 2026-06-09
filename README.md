@@ -71,6 +71,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - Fridge items are stored in the app's internal files directory, so the app does not request external storage permissions.
 - Fridge item input is trimmed before persistence, and whitespace-only entries
   are ignored.
+- A missing item input view is treated as empty input so stale tablet layouts
+  do not crash item creation or keyboard setup.
 - Fridge item storage uses UTF-8 for local reads and writes instead of the
   device default charset.
 - Keyboard restart and hide calls guard nullable input method services so
@@ -97,6 +99,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   verification wrapper baseline.
 - See `docs/plans/2026-06-09-fridge-item-input-normalization.md` for the item
   input normalization contract.
+- See `docs/plans/2026-06-09-fridge-item-input-null-guard.md` for the item
+  input null guard.
 - See `docs/plans/2026-06-09-fridge-log-privacy.md` for the local item logging
   privacy contract.
 - See `docs/plans/2026-06-09-fridge-backup-policy.md` for the local data backup

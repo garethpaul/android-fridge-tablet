@@ -73,7 +73,9 @@ for pattern in \
   "FileUtils.writeLines(todoFile, ITEM_FILE_ENCODING, items);" \
   "String itemText = normalizedItemText(etNewItem);" \
   "if (itemText.length() == 0)" \
+  "if (etNewItem != null)" \
   "private String normalizedItemText(EditText itemInput)" \
+  "if (itemInput == null || itemInput.getText() == null)" \
   "return itemInput.getText().toString().trim();" \
   "itemsAdapter.add(itemText);"; do
   if ! grep -Fq "$pattern" "$MAIN_ACTIVITY"; then
@@ -136,6 +138,8 @@ require_contains "README.md" "date header uses one-based formatting" \
   "README must document the date-format baseline."
 require_contains "README.md" "Fridge item storage uses UTF-8" \
   "README must document the fridge item file encoding."
+require_contains "README.md" "missing item input view" \
+  "README must document the fridge item input null guard."
 
 if [ ! -f "$ROOT_DIR/CHANGES.md" ]; then
   printf '%s\n' "CHANGES.md is missing." >&2
@@ -193,6 +197,11 @@ fi
 
 if ! grep -Fq "make check" "$ROOT_DIR/docs/plans/2026-06-09-fridge-item-file-encoding.md"; then
   printf '%s\n' "Fridge item file encoding plan must document make check verification." >&2
+  exit 1
+fi
+
+if ! grep -Fq "make check" "$ROOT_DIR/docs/plans/2026-06-09-fridge-item-input-null-guard.md"; then
+  printf '%s\n' "Fridge item input null guard plan must document make check verification." >&2
   exit 1
 fi
 

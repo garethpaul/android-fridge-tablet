@@ -60,10 +60,12 @@ public class MainActivity extends Activity {
 
         // Remove warnings
         EditText etNewItem = (EditText) findViewById(R.id.editText);
-        etNewItem.requestFocus();
-        InputMethodManager inputManager = (InputMethodManager)this.getSystemService(INPUT_METHOD_SERVICE);
-        if (inputManager != null) {
-            inputManager.restartInput(etNewItem);
+        if (etNewItem != null) {
+            etNewItem.requestFocus();
+            InputMethodManager inputManager = (InputMethodManager)this.getSystemService(INPUT_METHOD_SERVICE);
+            if (inputManager != null) {
+                inputManager.restartInput(etNewItem);
+            }
         }
 
         // SetupListView
@@ -128,6 +130,10 @@ public class MainActivity extends Activity {
     }
 
     private String normalizedItemText(EditText itemInput) {
+        if (itemInput == null || itemInput.getText() == null) {
+            return "";
+        }
+
         return itemInput.getText().toString().trim();
     }
 
