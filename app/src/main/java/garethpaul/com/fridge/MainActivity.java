@@ -61,7 +61,9 @@ public class MainActivity extends Activity {
         EditText etNewItem = (EditText) findViewById(R.id.editText);
         etNewItem.requestFocus();
         InputMethodManager inputManager = (InputMethodManager)this.getSystemService(INPUT_METHOD_SERVICE);
-        inputManager.restartInput(etNewItem);
+        if (inputManager != null) {
+            inputManager.restartInput(etNewItem);
+        }
 
         // SetupListView
         setupListViewListener();
@@ -118,7 +120,9 @@ public class MainActivity extends Activity {
 
         // Hide the keyboard
         InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        mgr.hideSoftInputFromWindow(etNewItem.getWindowToken(), 0);
+        if (mgr != null) {
+            mgr.hideSoftInputFromWindow(etNewItem.getWindowToken(), 0);
+        }
 
     }
 

@@ -102,6 +102,16 @@ if grep -Fq "String itemText = etNewItem.getText().toString();" "$MAIN_ACTIVITY"
   exit 1
 fi
 
+if ! grep -Fq "if (inputManager != null)" "$MAIN_ACTIVITY"; then
+  printf '%s\n' "Keyboard restart must guard nullable InputMethodManager." >&2
+  exit 1
+fi
+
+if ! grep -Fq "if (mgr != null)" "$MAIN_ACTIVITY"; then
+  printf '%s\n' "Keyboard hide must guard nullable InputMethodManager." >&2
+  exit 1
+fi
+
 require_contains "README.md" "scripts/check-baseline.sh" \
   "README must document the SDK-free baseline check."
 require_contains "README.md" "Android build-tools 24.0.3" \
