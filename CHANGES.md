@@ -2,6 +2,8 @@
 
 ## 2026-06-09
 
+- Guarded fridge list view setup and long-click removal positions so stale
+  tablet layouts or callbacks do not crash the activity.
 - Pinned fridge item file reads and writes to UTF-8 and added an SDK-free
   contract against platform-default charset persistence.
 - Guarded Fridge keyboard service lookups before restarting or hiding input so

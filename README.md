@@ -73,6 +73,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   are ignored.
 - A missing item input view is treated as empty input so stale tablet layouts
   do not crash item creation or keyboard setup.
+- A missing list view skips list wiring, and stale long-click positions are
+  ignored before item removal.
 - Fridge item storage uses UTF-8 for local reads and writes instead of the
   device default charset.
 - Keyboard restart and hide calls guard nullable input method services so
@@ -101,6 +103,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   input normalization contract.
 - See `docs/plans/2026-06-09-fridge-item-input-null-guard.md` for the item
   input null guard.
+- See `docs/plans/2026-06-09-fridge-list-view-guards.md` for the list view
+  null and stale-position guards.
 - See `docs/plans/2026-06-09-fridge-log-privacy.md` for the local item logging
   privacy contract.
 - See `docs/plans/2026-06-09-fridge-backup-policy.md` for the local data backup

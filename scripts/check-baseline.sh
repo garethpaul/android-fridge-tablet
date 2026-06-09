@@ -74,6 +74,9 @@ for pattern in \
   "String itemText = normalizedItemText(etNewItem);" \
   "if (itemText.length() == 0)" \
   "if (etNewItem != null)" \
+  "if (lvItems != null)" \
+  "if (lvItems == null)" \
+  "if (pos < 0 || pos >= items.size())" \
   "private String normalizedItemText(EditText itemInput)" \
   "if (itemInput == null || itemInput.getText() == null)" \
   "return itemInput.getText().toString().trim();" \
@@ -140,6 +143,8 @@ require_contains "README.md" "Fridge item storage uses UTF-8" \
   "README must document the fridge item file encoding."
 require_contains "README.md" "missing item input view" \
   "README must document the fridge item input null guard."
+require_contains "README.md" "missing list view" \
+  "README must document the fridge list view null guard."
 
 if [ ! -f "$ROOT_DIR/CHANGES.md" ]; then
   printf '%s\n' "CHANGES.md is missing." >&2
@@ -202,6 +207,11 @@ fi
 
 if ! grep -Fq "make check" "$ROOT_DIR/docs/plans/2026-06-09-fridge-item-input-null-guard.md"; then
   printf '%s\n' "Fridge item input null guard plan must document make check verification." >&2
+  exit 1
+fi
+
+if ! grep -Fq "make check" "$ROOT_DIR/docs/plans/2026-06-09-fridge-list-view-guards.md"; then
+  printf '%s\n' "Fridge list view guard plan must document make check verification." >&2
   exit 1
 fi
 

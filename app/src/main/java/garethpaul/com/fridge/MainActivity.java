@@ -56,7 +56,9 @@ public class MainActivity extends Activity {
 
         itemsAdapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1, items);
-        lvItems.setAdapter(itemsAdapter);
+        if (lvItems != null) {
+            lvItems.setAdapter(itemsAdapter);
+        }
 
         // Remove warnings
         EditText etNewItem = (EditText) findViewById(R.id.editText);
@@ -86,11 +88,19 @@ public class MainActivity extends Activity {
     }
     // Attaches a long click listener to the ListView
     private void setupListViewListener() {
+        if (lvItems == null) {
+            return;
+        }
+
         lvItems.setOnItemLongClickListener(
                 new AdapterView.OnItemLongClickListener() {
                     @Override
                     public boolean onItemLongClick(AdapterView<?> adapter,
                                                    View item, int pos, long id) {
+                        if (pos < 0 || pos >= items.size()) {
+                            return true;
+                        }
+
                         // Remove the item within array at position
                         items.remove(pos);
                         // Refresh the adapter
