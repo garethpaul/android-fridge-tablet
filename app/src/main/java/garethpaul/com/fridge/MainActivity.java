@@ -29,6 +29,7 @@ public class MainActivity extends Activity {
 
     private static final String LOG_TAG = "Fridge";
     private static final String DISPLAY_DATE_PATTERN = "M-d-yyyy";
+    private static final String ITEM_FILE_ENCODING = "UTF-8";
 
     private ArrayList<String> items;
     private ArrayAdapter<String> itemsAdapter;
@@ -135,7 +136,9 @@ public class MainActivity extends Activity {
         File filesDir = getFilesDir();
         File todoFile = new File(filesDir, textFileName);
         try {
-            items = new ArrayList<String>(FileUtils.readLines(todoFile));
+            items = new ArrayList<String>(FileUtils.readLines(
+                    todoFile,
+                    ITEM_FILE_ENCODING));
         } catch (IOException e) {
             items = new ArrayList<String>();
         }
@@ -146,7 +149,7 @@ public class MainActivity extends Activity {
         File filesDir = getFilesDir();
         File todoFile = new File(filesDir, textFileName);
         try {
-            FileUtils.writeLines(todoFile, items);
+            FileUtils.writeLines(todoFile, ITEM_FILE_ENCODING, items);
         } catch (IOException e) {
             Log.w(LOG_TAG, "Unable to write fridge items", e);
         }

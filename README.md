@@ -71,6 +71,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - Fridge items are stored in the app's internal files directory, so the app does not request external storage permissions.
 - Fridge item input is trimmed before persistence, and whitespace-only entries
   are ignored.
+- Fridge item storage uses UTF-8 for local reads and writes instead of the
+  device default charset.
 - Keyboard restart and hide calls guard nullable input method services so
   tablet environments without a service do not crash the activity.
 - Fridge item contents are not written to verbose logs during local storage
@@ -101,6 +103,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   policy contract.
 - See `docs/plans/2026-06-09-fridge-keyboard-service-guard.md` for the input
   method service null-safety contract.
+- See `docs/plans/2026-06-09-fridge-item-file-encoding.md` for the local item
+  file encoding contract.
 
 ## Contributing
 

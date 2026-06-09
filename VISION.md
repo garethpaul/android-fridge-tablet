@@ -21,6 +21,7 @@ Priority:
 - Keep the on-device fridge-list workflow understandable
 - Maintain SDK-free baseline verification
 - Keep fridge item creation from persisting empty-looking entries
+- Keep local item file encoding explicit across device defaults
 - Keep optional tablet input services guarded before keyboard operations
 - Keep personal fridge-list contents out of diagnostic logs
 - Keep local fridge-list contents out of Android backups by default

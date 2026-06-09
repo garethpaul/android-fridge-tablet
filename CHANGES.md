@@ -2,6 +2,8 @@
 
 ## 2026-06-09
 
+- Pinned fridge item file reads and writes to UTF-8 and added an SDK-free
+  contract against platform-default charset persistence.
 - Guarded Fridge keyboard service lookups before restarting or hiding input so
   tablet environments without an input method service do not crash the activity.
 - Removed verbose logging of stored fridge item contents and added an SDK-free

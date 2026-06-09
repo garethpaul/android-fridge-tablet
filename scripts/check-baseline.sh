@@ -67,6 +67,10 @@ for pattern in \
   'DISPLAY_DATE_PATTERN = "M-d-yyyy"' \
   "new SimpleDateFormat(DISPLAY_DATE_PATTERN, Locale.US).format(new Date())" \
   "getFilesDir()" \
+  'private static final String ITEM_FILE_ENCODING = "UTF-8"' \
+  "FileUtils.readLines(" \
+  "ITEM_FILE_ENCODING));" \
+  "FileUtils.writeLines(todoFile, ITEM_FILE_ENCODING, items);" \
   "String itemText = normalizedItemText(etNewItem);" \
   "if (itemText.length() == 0)" \
   "private String normalizedItemText(EditText itemInput)" \
@@ -102,6 +106,16 @@ if grep -Fq "String itemText = etNewItem.getText().toString();" "$MAIN_ACTIVITY"
   exit 1
 fi
 
+if grep -Fq "FileUtils.readLines(todoFile));" "$MAIN_ACTIVITY"; then
+  printf '%s\n' "Fridge item reads must not use the platform default charset." >&2
+  exit 1
+fi
+
+if grep -Fq "FileUtils.writeLines(todoFile, items);" "$MAIN_ACTIVITY"; then
+  printf '%s\n' "Fridge item writes must not use the platform default charset." >&2
+  exit 1
+fi
+
 if ! grep -Fq "if (inputManager != null)" "$MAIN_ACTIVITY"; then
   printf '%s\n' "Keyboard restart must guard nullable InputMethodManager." >&2
   exit 1
@@ -120,6 +134,8 @@ require_contains "README.md" "target SDK 21" \
   "README must document the preserved target SDK."
 require_contains "README.md" "date header uses one-based formatting" \
   "README must document the date-format baseline."
+require_contains "README.md" "Fridge item storage uses UTF-8" \
+  "README must document the fridge item file encoding."
 
 if [ ! -f "$ROOT_DIR/CHANGES.md" ]; then
   printf '%s\n' "CHANGES.md is missing." >&2
@@ -172,6 +188,11 @@ fi
 
 if ! grep -Fq "./gradlew assembleDebug --no-daemon" "$README"; then
   printf '%s\n' "README must document Gradle build verification." >&2
+  exit 1
+fi
+
+if ! grep -Fq "make check" "$ROOT_DIR/docs/plans/2026-06-09-fridge-item-file-encoding.md"; then
+  printf '%s\n' "Fridge item file encoding plan must document make check verification." >&2
   exit 1
 fi
 
