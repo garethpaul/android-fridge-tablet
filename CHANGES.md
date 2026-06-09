@@ -1,5 +1,10 @@
 # Changes
 
+## 2026-06-09
+
+- Removed verbose logging of stored fridge item contents and added an SDK-free
+  contract requiring sanitized persistence warnings.
+
 ## 2026-06-08
 
 - Added `make check` as the root wrapper for Fridge source, lint, test, and

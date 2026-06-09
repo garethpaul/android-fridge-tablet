@@ -71,6 +71,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - Fridge items are stored in the app's internal files directory, so the app does not request external storage permissions.
 - Fridge item input is trimmed before persistence, and whitespace-only entries
   are ignored.
+- Fridge item contents are not written to verbose logs during local storage
+  reads or write failures.
 
 ## Security and Privacy Notes
 
@@ -89,6 +91,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   verification wrapper baseline.
 - See `docs/plans/2026-06-09-fridge-item-input-normalization.md` for the item
   input normalization contract.
+- See `docs/plans/2026-06-09-fridge-log-privacy.md` for the local item logging
+  privacy contract.
 
 ## Contributing
 

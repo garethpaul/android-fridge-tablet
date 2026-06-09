@@ -27,13 +27,15 @@ import org.apache.commons.io.FileUtils;
 
 public class MainActivity extends Activity {
 
+    private static final String LOG_TAG = "Fridge";
+    private static final String DISPLAY_DATE_PATTERN = "M-d-yyyy";
+
     private ArrayList<String> items;
     private ArrayAdapter<String> itemsAdapter;
     private ListView lvItems;
     private TextView dateTime;
 
     private String textFileName = "food.txt";
-    private static final String DISPLAY_DATE_PATTERN = "M-d-yyyy";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,12 +128,10 @@ public class MainActivity extends Activity {
 
     // Read Items from persistent storage
     private void readItems() {
-        Log.v("readItems", "read");
         File filesDir = getFilesDir();
         File todoFile = new File(filesDir, textFileName);
         try {
             items = new ArrayList<String>(FileUtils.readLines(todoFile));
-            Log.v("items", items.toString());
         } catch (IOException e) {
             items = new ArrayList<String>();
         }
@@ -144,7 +144,7 @@ public class MainActivity extends Activity {
         try {
             FileUtils.writeLines(todoFile, items);
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.w(LOG_TAG, "Unable to write fridge items", e);
         }
     }
 

@@ -57,6 +57,7 @@ if grep -Fq "today.month + \"-\"" "$MAIN_ACTIVITY"; then
 fi
 
 for pattern in \
+  'private static final String LOG_TAG = "Fridge"' \
   'DISPLAY_DATE_PATTERN = "M-d-yyyy"' \
   "new SimpleDateFormat(DISPLAY_DATE_PATTERN, Locale.US).format(new Date())" \
   "getFilesDir()" \
@@ -70,6 +71,25 @@ for pattern in \
     exit 1
   fi
 done
+
+if grep -Fq "items.toString()" "$MAIN_ACTIVITY"; then
+  printf '%s\n' "Fridge item contents must not be logged." >&2
+  exit 1
+fi
+
+if grep -Fq "Log.v(" "$MAIN_ACTIVITY"; then
+  printf '%s\n' "Fridge item read path must not use verbose logging." >&2
+  exit 1
+fi
+
+if grep -Fq "printStackTrace()" "$MAIN_ACTIVITY"; then
+  printf '%s\n' "Fridge persistence errors must use sanitized Android logging." >&2
+  exit 1
+fi
+
+require_contains "app/src/main/java/garethpaul/com/fridge/MainActivity.java" \
+  'Log.w(LOG_TAG, "Unable to write fridge items", e);' \
+  "Fridge write failures must log a sanitized warning."
 
 if grep -Fq "String itemText = etNewItem.getText().toString();" "$MAIN_ACTIVITY"; then
   printf '%s\n' "Fridge items must not persist raw EditText text." >&2
