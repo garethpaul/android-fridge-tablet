@@ -29,6 +29,7 @@ Priority:
 - Keep optional tablet input services guarded before keyboard operations
 - Keep personal fridge-list contents out of diagnostic logs
 - Keep local fridge-list contents out of Android backups by default
+- Keep GitHub Actions running the root `make check` baseline before review
 - Avoid hiding old toolchain requirements or local SDK assumptions
 
 Next priorities:
@@ -42,6 +43,8 @@ Contribution rules:
 
 - One PR = one focused maintenance or app behavior topic.
 - Run `scripts/check-baseline.sh` before pushing.
+- Keep `.github/workflows/check.yml` aligned with the documented `make check`
+  wrapper.
 - Run the documented Gradle checks with a compatible Android SDK for code
   changes.
 - Keep local SDK paths and generated files out of git.

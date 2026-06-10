@@ -41,6 +41,7 @@ Additional scan context:
 ```bash
 git clone https://github.com/garethpaul/android-fridge-tablet.git
 cd android-fridge-tablet
+make check
 scripts/check-baseline.sh
 ./gradlew lint --no-daemon
 ./gradlew test --no-daemon
@@ -58,6 +59,10 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 - `make check` - runs the source baseline and Android SDK-backed Gradle checks
   when `ANDROID_HOME` is configured
 - `scripts/check-baseline.sh` - runs SDK-free Fridge tablet baseline checks.
+- GitHub Actions runs `make check` through `.github/workflows/check.yml` on
+  pushes, pull requests, and manual dispatches.
+- Local Gradle checks require an explicit `ANDROID_HOME`; CI clears ambient SDK
+  variables to preserve the documented static-only boundary.
 - The baseline check protects internal storage, date formatting, layout
   resources, and fridge item input normalization.
 - `./gradlew lint --no-daemon`, `./gradlew test --no-daemon`, and `./gradlew assembleDebug --no-daemon` when the Android SDK is configured.
@@ -121,6 +126,7 @@ When the required SDK or runtime is unavailable, use static checks and source re
   method service null-safety contract.
 - See `docs/plans/2026-06-09-fridge-item-file-encoding.md` for the local item
   file encoding contract.
+- See `docs/plans/2026-06-10-ci-baseline.md` for the GitHub Actions baseline.
 
 ## Contributing
 
