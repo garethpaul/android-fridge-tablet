@@ -30,6 +30,7 @@ public class MainActivity extends Activity {
     private static final String LOG_TAG = "Fridge";
     private static final String DISPLAY_DATE_PATTERN = "M-d-yyyy";
     private static final String ITEM_FILE_ENCODING = "UTF-8";
+    private static final String ITEM_TEMP_FILE_NAME = "food.txt.tmp";
 
     private ArrayList<String> items;
     private ArrayAdapter<String> itemsAdapter;
@@ -166,10 +167,18 @@ public class MainActivity extends Activity {
     private void writeItems() {
         File filesDir = getFilesDir();
         File todoFile = new File(filesDir, textFileName);
+        File temporaryFile = new File(filesDir, ITEM_TEMP_FILE_NAME);
         try {
-            FileUtils.writeLines(todoFile, ITEM_FILE_ENCODING, items);
+            FileUtils.writeLines(temporaryFile, ITEM_FILE_ENCODING, items);
+            if (!temporaryFile.renameTo(todoFile)) {
+                throw new IOException("Unable to replace fridge item file");
+            }
         } catch (IOException e) {
             Log.w(LOG_TAG, "Unable to write fridge items", e);
+        } finally {
+            if (temporaryFile.exists() && !temporaryFile.delete()) {
+                Log.w(LOG_TAG, "Unable to remove temporary fridge item file");
+            }
         }
     }
 

@@ -57,12 +57,13 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 ## Testing and Verification
 
 - `make check` - runs the source baseline and Android SDK-backed Gradle checks
-  when `ANDROID_HOME` is configured
+  when `ANDROID_HOME` or `ANDROID_SDK_ROOT` is configured
 - `scripts/check-baseline.sh` - runs SDK-free Fridge tablet baseline checks.
 - GitHub Actions runs `make check` through `.github/workflows/check.yml` on
-  pushes, pull requests, and manual dispatches.
-- Local Gradle checks require an explicit `ANDROID_HOME`; CI clears ambient SDK
-  variables to preserve the documented static-only boundary.
+  pushes, pull requests, and manual dispatches using Ubuntu 24.04 with
+  superseded-run cancellation.
+- Local Gradle checks accept `ANDROID_HOME` or `ANDROID_SDK_ROOT`; CI clears
+  both variables to preserve the documented static-only boundary.
 - The baseline check protects internal storage, date formatting, layout
   resources, and fridge item input normalization.
 - `./gradlew lint --no-daemon`, `./gradlew test --no-daemon`, and `./gradlew assembleDebug --no-daemon` when the Android SDK is configured.
@@ -86,6 +87,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   items so stale action-bar paths do not crash the activity.
 - Fridge item storage uses UTF-8 for local reads and writes instead of the
   device default charset.
+- Fridge item writes use a same-directory temporary file and rename so a
+  failed write does not truncate the existing list in place.
 - Keyboard restart and hide calls guard nullable input method services so
   tablet environments without a service do not crash the activity.
 - Fridge item contents are not written to verbose logs during local storage

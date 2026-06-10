@@ -70,9 +70,12 @@ for pattern in \
   "new SimpleDateFormat(DISPLAY_DATE_PATTERN, Locale.US).format(new Date())" \
   "getFilesDir()" \
   'private static final String ITEM_FILE_ENCODING = "UTF-8"' \
+  'private static final String ITEM_TEMP_FILE_NAME = "food.txt.tmp"' \
   "FileUtils.readLines(" \
   "ITEM_FILE_ENCODING));" \
-  "FileUtils.writeLines(todoFile, ITEM_FILE_ENCODING, items);" \
+  "FileUtils.writeLines(temporaryFile, ITEM_FILE_ENCODING, items);" \
+  "if (!temporaryFile.renameTo(todoFile))" \
+  "if (temporaryFile.exists() && !temporaryFile.delete())" \
   "String itemText = normalizedItemText(etNewItem);" \
   "if (itemText.length() == 0)" \
   "if (etNewItem != null)" \
@@ -91,6 +94,11 @@ for pattern in \
     exit 1
   fi
 done
+
+if grep -Fq "FileUtils.writeLines(todoFile" "$MAIN_ACTIVITY"; then
+  printf '%s\n' "Fridge persistence must not write directly to the destination file." >&2
+  exit 1
+fi
 
 if grep -Fq "items.toString()" "$MAIN_ACTIVITY"; then
   printf '%s\n' "Fridge item contents must not be logged." >&2
@@ -244,6 +252,8 @@ fi
 for workflow_contract in \
   "permissions:" \
   "contents: read" \
+  "runs-on: ubuntu-24.04" \
+  "cancel-in-progress: true" \
   "timeout-minutes: 5" \
   "workflow_dispatch:" \
   "actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10" \
@@ -252,6 +262,15 @@ for workflow_contract in \
   "run: make check"; do
   if ! grep -Fq "$workflow_contract" "$CI_WORKFLOW"; then
     printf '%s\n' "GitHub Actions check workflow must keep contract: $workflow_contract" >&2
+    exit 1
+  fi
+done
+
+for make_contract in \
+  'ROOT := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))' \
+  'ANDROID_SDK := $(if $(ANDROID_HOME),$(ANDROID_HOME),$(ANDROID_SDK_ROOT))'; do
+  if ! grep -Fq "$make_contract" "$ROOT_DIR/Makefile"; then
+    printf '%s\n' "Makefile must keep contract: $make_contract" >&2
     exit 1
   fi
 done

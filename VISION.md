@@ -26,6 +26,8 @@ Priority:
 - Keep date header updates safe when stale tablet layouts omit the header
 - Keep menu callbacks guarded when stale action-bar paths pass missing values
 - Keep local item file encoding explicit across device defaults
+- Replace fridge-list contents through a temporary file instead of truncating
+  the destination during writes
 - Keep optional tablet input services guarded before keyboard operations
 - Keep personal fridge-list contents out of diagnostic logs
 - Keep local fridge-list contents out of Android backups by default

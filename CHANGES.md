@@ -2,6 +2,10 @@
 
 ## 2026-06-10
 
+- Changed fridge-list persistence to write UTF-8 content to a same-directory
+  temporary file before replacing the destination.
+- Made root checks location-independent, accepted `ANDROID_SDK_ROOT`, and
+  pinned CI to Ubuntu 24.04 with superseded-run cancellation.
 - Added a pinned, read-only GitHub Actions check workflow that runs the existing
   `make check` baseline with a bounded timeout and explicit SDK-free execution.
 - Added an SDK-free guard requiring the CI workflow and completed CI baseline
