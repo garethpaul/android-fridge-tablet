@@ -15,6 +15,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
@@ -105,11 +106,14 @@ public class MainActivity extends Activity {
                         }
 
                         // Remove the item within array at position
-                        items.remove(pos);
+                        String removedItem = items.remove(pos);
                         // Refresh the adapter
                         itemsAdapter.notifyDataSetChanged();
-                        //
-                        writeItems();
+                        if (!writeItems()) {
+                            items.add(pos, removedItem);
+                            itemsAdapter.notifyDataSetChanged();
+                            showWriteError();
+                        }
                         // Return true consumes the long click event (marks it handled)
                         return true;
                     }
@@ -126,13 +130,19 @@ public class MainActivity extends Activity {
         }
 
         // Add the item to the ListView
-        itemsAdapter.add(itemText);
+        int addedPosition = items.size();
+        items.add(itemText);
+        itemsAdapter.notifyDataSetChanged();
+
+        if (!writeItems()) {
+            items.remove(addedPosition);
+            itemsAdapter.notifyDataSetChanged();
+            showWriteError();
+            return;
+        }
 
         // Set the text to empty
         etNewItem.setText("");
-
-        // Write items to persistent storage
-        writeItems();
 
         // Hide the keyboard
         InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -164,15 +174,17 @@ public class MainActivity extends Activity {
     }
 
     // Write items to persistent storage
-    private void writeItems() {
+    private boolean writeItems() {
         File filesDir = getFilesDir();
         File todoFile = new File(filesDir, textFileName);
         File temporaryFile = new File(filesDir, ITEM_TEMP_FILE_NAME);
+        boolean written = false;
         try {
             FileUtils.writeLines(temporaryFile, ITEM_FILE_ENCODING, items);
             if (!temporaryFile.renameTo(todoFile)) {
                 throw new IOException("Unable to replace fridge item file");
             }
+            written = true;
         } catch (IOException e) {
             Log.w(LOG_TAG, "Unable to write fridge items", e);
         } finally {
@@ -180,6 +192,11 @@ public class MainActivity extends Activity {
                 Log.w(LOG_TAG, "Unable to remove temporary fridge item file");
             }
         }
+        return written;
+    }
+
+    private void showWriteError() {
+        Toast.makeText(this, R.string.write_items_error, Toast.LENGTH_SHORT).show();
     }
 
     @Override

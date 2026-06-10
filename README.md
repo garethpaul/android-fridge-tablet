@@ -89,6 +89,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   device default charset.
 - Fridge item writes use a same-directory temporary file and rename so a
   failed write does not truncate the existing list in place.
+- Failed item writes roll back the visible list to its last durable state and
+  show a localized warning without exposing item contents.
 - Keyboard restart and hide calls guard nullable input method services so
   tablet environments without a service do not crash the activity.
 - Fridge item contents are not written to verbose logs during local storage

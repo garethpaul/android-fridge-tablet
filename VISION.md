@@ -21,6 +21,7 @@ Priority:
 - Keep the on-device fridge-list workflow understandable
 - Maintain SDK-free baseline verification
 - Keep fridge item creation from persisting empty-looking entries
+- Keep visible fridge items consistent with successful durable writes
 - Keep item creation safe when legacy input views are missing
 - Keep list view setup safe when stale tablet layouts omit the list view
 - Keep date header updates safe when stale tablet layouts omit the header

@@ -88,12 +88,31 @@ for pattern in \
   "private String normalizedItemText(EditText itemInput)" \
   "if (itemInput == null || itemInput.getText() == null)" \
   "return itemInput.getText().toString().trim();" \
-  "itemsAdapter.add(itemText);"; do
+  "items.add(itemText);"; do
   if ! grep -Fq "$pattern" "$MAIN_ACTIVITY"; then
     printf '%s\n' "Missing source baseline pattern: $pattern" >&2
     exit 1
   fi
 done
+
+for write_result_contract in \
+  "private boolean writeItems()" \
+  "boolean written = false;" \
+  "written = true;" \
+  "return written;" \
+  "if (!writeItems())" \
+  "items.add(pos, removedItem);" \
+  "items.remove(addedPosition);" \
+  "showWriteError();"; do
+  if ! grep -Fq "$write_result_contract" "$MAIN_ACTIVITY"; then
+    printf '%s\n' "Fridge write-result handling must keep contract: $write_result_contract" >&2
+    exit 1
+  fi
+done
+
+require_contains "app/src/main/res/values/strings.xml" \
+  '<string name="write_items_error">Unable to save fridge items.</string>' \
+  "Fridge write failures must use a localized user message."
 
 if grep -Fq "FileUtils.writeLines(todoFile" "$MAIN_ACTIVITY"; then
   printf '%s\n' "Fridge persistence must not write directly to the destination file." >&2
@@ -164,6 +183,8 @@ require_contains "README.md" "missing date header view" \
   "README must document the fridge date header null guard."
 require_contains "README.md" "missing options menu" \
   "README must document the fridge menu callback null guard."
+require_contains "README.md" "roll back the visible list" \
+  "README must document fridge write-failure rollback."
 
 if [ ! -f "$ROOT_DIR/CHANGES.md" ]; then
   printf '%s\n' "CHANGES.md is missing." >&2
@@ -241,6 +262,12 @@ fi
 
 if ! grep -Fq "make check" "$ROOT_DIR/docs/plans/2026-06-09-fridge-menu-callback-guards.md"; then
   printf '%s\n' "Fridge menu callback guard plan must document make check verification." >&2
+  exit 1
+fi
+
+if ! grep -Fq "Status: Completed" "$ROOT_DIR/docs/plans/2026-06-10-fridge-write-failure-rollback.md" || \
+   ! grep -Fq "make check" "$ROOT_DIR/docs/plans/2026-06-10-fridge-write-failure-rollback.md"; then
+  printf '%s\n' "Fridge write-failure rollback plan must record completed status and make check verification." >&2
   exit 1
 fi
 

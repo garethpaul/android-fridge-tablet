@@ -4,6 +4,8 @@
 
 - Changed fridge-list persistence to write UTF-8 content to a same-directory
   temporary file before replacing the destination.
+- Added write-result propagation so failed adds and removals roll back the
+  visible list and show a localized warning.
 - Made root checks location-independent, accepted `ANDROID_SDK_ROOT`, and
   pinned CI to Ubuntu 24.04 with superseded-run cancellation.
 - Added a pinned, read-only GitHub Actions check workflow that runs the existing
