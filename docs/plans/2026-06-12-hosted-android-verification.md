@@ -1,6 +1,6 @@
 # Hosted Android Verification
 
-## Status: Implementation Complete; Hosted Verification Pending
+## Status: Completed
 
 ## Context
 
@@ -35,7 +35,9 @@ processing.
 - Confirmed nine hostile workflow, cruncher, checker, documentation, and
   plan-status mutations are rejected.
 - Passed `git diff --check`.
-- Exact-head pull-request workflow pending after the implementation push.
+- GitHub Actions `pull_request` run `27401692406` passed the complete hosted
+  Android gate in 41 seconds for implementation commit
+  `e822f40bbf3dc505ba8e769de3245febe44e36ae`.
 
 ## Boundaries
 

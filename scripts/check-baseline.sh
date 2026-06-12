@@ -386,11 +386,12 @@ if [ ! -f "$CI_PLAN" ] || \
 fi
 
 if [ ! -f "$HOSTED_ANDROID_PLAN" ] || \
-   ! grep -Fq "Status: Implementation Complete; Hosted Verification Pending" "$HOSTED_ANDROID_PLAN" || \
+   ! grep -Fq "Status: Completed" "$HOSTED_ANDROID_PLAN" || \
    ! grep -Fq "make check" "$HOSTED_ANDROID_PLAN" || \
    ! grep -Fq "zero lint issues" "$HOSTED_ANDROID_PLAN" || \
-   ! grep -Fq "Exact-head pull-request workflow pending" "$HOSTED_ANDROID_PLAN"; then
-  printf '%s\n' "Hosted fridge verification plan must record completed local evidence and pending hosted evidence." >&2
+   ! grep -Fq 'GitHub Actions `pull_request` run `27401692406` passed' "$HOSTED_ANDROID_PLAN" || \
+   ! grep -Fq "e822f40bbf3dc505ba8e769de3245febe44e36ae" "$HOSTED_ANDROID_PLAN"; then
+  printf '%s\n' "Hosted fridge verification plan must record completed local and hosted evidence." >&2
   exit 1
 fi
 
