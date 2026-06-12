@@ -13,6 +13,8 @@
 - Added an SDK-free guard requiring the CI workflow and completed CI baseline
   plan to remain checked in.
 - Removed the maintainer-specific Android SDK path from the Makefile.
+- Disabled persisted checkout credentials, added self-protecting CODEOWNERS,
+  and replaced partial workflow checks with one canonical workflow contract.
 
 ## 2026-06-09
 
