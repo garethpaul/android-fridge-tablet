@@ -39,7 +39,7 @@ Additional scan context:
 
 - Git
 - Android Studio or a compatible Android SDK
-- Gradle or the checked-in Gradle wrapper when present
+- Java 8 and the checked-in Gradle wrapper
 
 ### Setup
 
@@ -54,6 +54,11 @@ scripts/check-baseline.sh
 ```
 
 The setup commands above are derived from repository files. Legacy mobile, Python, or JavaScript samples may require older SDKs or package versions than a modern workstation uses by default.
+
+The generated wrapper still executes Gradle 2.2.1 for compatibility. It uses
+`distributionSha256Sum` to authenticate the downloaded distribution, while the
+SDK-free baseline verifies the checked-in wrapper JAR and launchers. This does not make the first build offline-reproducible;
+an uncached build still needs Gradle's HTTPS distribution service.
 
 ## Running or Using the Project
 
@@ -72,6 +77,8 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 - The baseline check protects internal storage, date formatting, layout
   resources, and fridge item input normalization.
 - `./gradlew lint --no-daemon`, `./gradlew test --no-daemon`, and `./gradlew assembleDebug --no-daemon` when the Android SDK is configured.
+- [`docs/plans/2026-06-12-gradle-wrapper-verification.md`](docs/plans/2026-06-12-gradle-wrapper-verification.md)
+  records wrapper provenance and compatibility evidence.
 
 The legacy plugin uses its non-queued PNG cruncher because AGP 1.1's newer
 concurrent cruncher can fail nondeterministically on clean hosted builds. When
