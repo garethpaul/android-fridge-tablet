@@ -4,5 +4,6 @@
     <string name="date_placeholder">Today</string>
     <string name="add_item">Add Item</string>
     <string name="item_hint">New fridge item</string>
+    <string name="read_items_error">Unable to load fridge items. Changes are disabled.</string>
     <string name="write_items_error">Unable to save fridge items.</string>
 </resources>

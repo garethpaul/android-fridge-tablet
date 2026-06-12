@@ -37,6 +37,7 @@ public class MainActivity extends Activity {
     private ArrayAdapter<String> itemsAdapter;
     private ListView lvItems;
     private TextView dateTime;
+    private boolean itemStorageAvailable;
 
     private String textFileName = "food.txt";
 
@@ -123,6 +124,11 @@ public class MainActivity extends Activity {
 
     // Adds item to view
     public void onAddItem(View v) {
+        if (!itemStorageAvailable) {
+            showReadError();
+            return;
+        }
+
         EditText etNewItem = (EditText) findViewById(R.id.editText);
         String itemText = normalizedItemText(etNewItem);
         if (itemText.length() == 0) {
@@ -164,17 +170,30 @@ public class MainActivity extends Activity {
     private void readItems() {
         File filesDir = getFilesDir();
         File todoFile = new File(filesDir, textFileName);
+        items = new ArrayList<String>();
+        if (!todoFile.exists()) {
+            itemStorageAvailable = true;
+            return;
+        }
+
         try {
             items = new ArrayList<String>(FileUtils.readLines(
                     todoFile,
                     ITEM_FILE_ENCODING));
+            itemStorageAvailable = true;
         } catch (IOException e) {
-            items = new ArrayList<String>();
+            itemStorageAvailable = false;
+            Log.w(LOG_TAG, "Unable to read fridge items", e);
+            showReadError();
         }
     }
 
     // Write items to persistent storage
     private boolean writeItems() {
+        if (!itemStorageAvailable) {
+            return false;
+        }
+
         File filesDir = getFilesDir();
         File todoFile = new File(filesDir, textFileName);
         File temporaryFile = new File(filesDir, ITEM_TEMP_FILE_NAME);
@@ -197,6 +216,10 @@ public class MainActivity extends Activity {
 
     private void showWriteError() {
         Toast.makeText(this, R.string.write_items_error, Toast.LENGTH_SHORT).show();
+    }
+
+    private void showReadError() {
+        Toast.makeText(this, R.string.read_items_error, Toast.LENGTH_SHORT).show();
     }
 
     @Override
