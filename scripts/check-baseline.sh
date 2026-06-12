@@ -7,6 +7,7 @@ LAYOUT="$ROOT_DIR/app/src/main/res/layout/activity_main.xml"
 README="$ROOT_DIR/README.md"
 CI_WORKFLOW="$ROOT_DIR/.github/workflows/check.yml"
 CI_PLAN="$ROOT_DIR/docs/plans/2026-06-10-ci-baseline.md"
+READ_FAILURE_PLAN="$ROOT_DIR/docs/plans/2026-06-12-fridge-read-failure-write-guard.md"
 
 require_contains() {
   file=$1
@@ -138,6 +139,44 @@ require_contains "app/src/main/java/garethpaul/com/fridge/MainActivity.java" \
   'Log.w(LOG_TAG, "Unable to write fridge items", e);' \
   "Fridge write failures must log a sanitized warning."
 
+for read_failure_contract in \
+  "private boolean itemStorageAvailable;" \
+  "if (!todoFile.exists())" \
+  "itemStorageAvailable = true;" \
+  "itemStorageAvailable = false;" \
+  'Log.w(LOG_TAG, "Unable to read fridge items", e);' \
+  "showReadError();" \
+  "R.string.read_items_error"; do
+  if ! grep -Fq "$read_failure_contract" "$MAIN_ACTIVITY"; then
+    printf '%s\n' "Fridge read-failure handling must keep contract: $read_failure_contract" >&2
+    exit 1
+  fi
+done
+
+ADD_HANDLER=$(sed -n '/public void onAddItem(View v)/,/private String normalizedItemText/p' "$MAIN_ACTIVITY")
+WRITE_HANDLER=$(sed -n '/private boolean writeItems()/,/private void showWriteError()/p' "$MAIN_ACTIVITY")
+
+if ! printf '%s\n' "$ADD_HANDLER" | grep -Fq "if (!itemStorageAvailable)"; then
+  printf '%s\n' "Fridge add path must reject unavailable item storage." >&2
+  exit 1
+fi
+
+if ! printf '%s\n' "$WRITE_HANDLER" | grep -Fq "if (!itemStorageAvailable)"; then
+  printf '%s\n' "Fridge write path must reject unavailable item storage." >&2
+  exit 1
+fi
+
+require_contains "app/src/main/res/values/strings.xml" \
+  '<string name="read_items_error">Unable to load fridge items. Changes are disabled.</string>' \
+  "Fridge read failures must use a localized user message."
+
+if [ ! -f "$READ_FAILURE_PLAN" ] || \
+   ! grep -Fq "Status: Completed" "$READ_FAILURE_PLAN" || \
+   ! grep -Fq "make check" "$READ_FAILURE_PLAN"; then
+  printf '%s\n' "Fridge read-failure write-guard plan must record completed make check verification." >&2
+  exit 1
+fi
+
 if grep -Fq "String itemText = etNewItem.getText().toString();" "$MAIN_ACTIVITY"; then
   printf '%s\n' "Fridge items must not persist raw EditText text." >&2
   exit 1
@@ -185,6 +224,8 @@ require_contains "README.md" "missing options menu" \
   "README must document the fridge menu callback null guard."
 require_contains "README.md" "roll back the visible list" \
   "README must document fridge write-failure rollback."
+require_contains "README.md" "unreadable existing item file" \
+  "README must document fail-closed fridge read handling."
 
 if [ ! -f "$ROOT_DIR/CHANGES.md" ]; then
   printf '%s\n' "CHANGES.md is missing." >&2

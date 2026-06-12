@@ -91,6 +91,9 @@ When the required SDK or runtime is unavailable, use static checks and source re
   failed write does not truncate the existing list in place.
 - Failed item writes roll back the visible list to its last durable state and
   show a localized warning without exposing item contents.
+- An unreadable existing item file shows a localized warning and disables
+  changes for that activity session so later writes cannot replace data that
+  failed to load. A missing file remains a normal empty first-launch state.
 - Keyboard restart and hide calls guard nullable input method services so
   tablet environments without a service do not crash the activity.
 - Fridge item contents are not written to verbose logs during local storage
@@ -132,6 +135,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - See `docs/plans/2026-06-09-fridge-item-file-encoding.md` for the local item
   file encoding contract.
 - See `docs/plans/2026-06-10-ci-baseline.md` for the GitHub Actions baseline.
+- See `docs/plans/2026-06-12-fridge-read-failure-write-guard.md` for the
+  fail-closed item-read contract.
 
 ## Contributing
 
