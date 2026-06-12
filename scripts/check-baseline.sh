@@ -8,6 +8,8 @@ README="$ROOT_DIR/README.md"
 CI_WORKFLOW="$ROOT_DIR/.github/workflows/check.yml"
 CODEOWNERS="$ROOT_DIR/.github/CODEOWNERS"
 READ_FAILURE_PLAN="$ROOT_DIR/docs/plans/2026-06-12-fridge-read-failure-write-guard.md"
+CI_PLAN="$ROOT_DIR/docs/plans/2026-06-10-ci-baseline.md"
+HOSTED_ANDROID_PLAN="$ROOT_DIR/docs/plans/2026-06-12-hosted-android-verification.md"
 
 expected_ci_workflow() {
   cat <<'EOF'
@@ -23,6 +25,9 @@ on:
 permissions:
   contents: read
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 concurrency:
   group: check-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -30,18 +35,24 @@ concurrency:
 jobs:
   check:
     runs-on: ubuntu-24.04
-    timeout-minutes: 5
+    timeout-minutes: 15
     steps:
       - name: Check out repository
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
 
-      - name: Run baseline
+      - name: Install Android SDK packages
+        run: '"${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" "platform-tools" "platforms;android-22" "build-tools;24.0.3"'
+
+      - name: Set up Java 8
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
+        with:
+          distribution: corretto
+          java-version: "8"
+
+      - name: Run full verification
         run: make check
-        env:
-          ANDROID_HOME: ""
-          ANDROID_SDK_ROOT: ""
 EOF
 }
 
@@ -82,6 +93,10 @@ require_contains "app/build.gradle" "buildToolsVersion \"24.0.3\"" \
   "App module must use build-tools 24.0.3."
 require_contains "app/build.gradle" "targetSdkVersion 21" \
   "App module must preserve target SDK 21."
+require_contains "app/build.gradle" "aaptOptions {" \
+  "App module must configure deterministic legacy PNG processing."
+require_contains "app/build.gradle" "useNewCruncher false" \
+  "App module must avoid AGP 1.1's nondeterministic queued PNG cruncher."
 
 require_absent "app/src/main/AndroidManifest.xml" \
   "android.permission.WRITE_EXTERNAL_STORAGE" \
@@ -358,7 +373,30 @@ if [ "$workflow_paths" != "$CI_WORKFLOW" ]; then
 fi
 
 if [ "$(cat "$CI_WORKFLOW")" != "$(expected_ci_workflow)" ]; then
-  printf '%s\n' "GitHub Actions check workflow must match the approved SDK-free security baseline." >&2
+  printf '%s\n' "GitHub Actions check workflow must match the approved full Android security baseline." >&2
+  exit 1
+fi
+
+if [ ! -f "$CI_PLAN" ] || \
+   ! grep -Fq "Status: Completed" "$CI_PLAN" || \
+   ! grep -Fq "build-tools 24.0.3" "$CI_PLAN" || \
+   ! grep -Fq 'complete `make check` gate' "$CI_PLAN"; then
+  printf '%s\n' "Fridge CI baseline plan must document the complete hosted Android gate." >&2
+  exit 1
+fi
+
+if [ ! -f "$HOSTED_ANDROID_PLAN" ] || \
+   ! grep -Fq "Status: Implementation Complete; Hosted Verification Pending" "$HOSTED_ANDROID_PLAN" || \
+   ! grep -Fq "make check" "$HOSTED_ANDROID_PLAN" || \
+   ! grep -Fq "zero lint issues" "$HOSTED_ANDROID_PLAN" || \
+   ! grep -Fq "Exact-head pull-request workflow pending" "$HOSTED_ANDROID_PLAN"; then
+  printf '%s\n' "Hosted fridge verification plan must record completed local evidence and pending hosted evidence." >&2
+  exit 1
+fi
+
+if ! grep -Fq "canonical GitHub Actions workflow installs Android API 22" "$README" || \
+   ! grep -Fq "2026-06-12-hosted-android-verification.md" "$README"; then
+  printf '%s\n' "README must document the hosted Android gate and plan." >&2
   exit 1
 fi
 
