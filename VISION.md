@@ -33,11 +33,13 @@ Priority:
 - Keep personal fridge-list contents out of diagnostic logs
 - Keep local fridge-list contents out of Android backups by default
 - Keep GitHub Actions running the root `make check` baseline before review
+- Keep the legacy Gradle runtime behind a checksum-verified generated wrapper
 - Avoid hiding old toolchain requirements or local SDK assumptions
 
 Next priorities:
 
-- Modernize Gradle, target SDK, storage behavior, and date handling together
+- Evaluate Gradle runtime, SDK, plugin, storage, and date modernization together
+  in a dedicated compatibility pass; wrapper bootstrap hardening is separate
 - Add tests around list item creation, persistence, and deletion flows
 - Clarify emulator or tablet verification steps
 - Reduce obsolete dependency assumptions when the app is actively revived

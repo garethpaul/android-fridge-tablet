@@ -1,5 +1,12 @@
 # Changes
 
+## 2026-06-12
+
+- Regenerated the Gradle wrapper bootstrap with official Gradle 8.14.5 tooling
+  while retaining the Gradle 2.2.1 Android runtime.
+- Pinned Gradle's official distribution checksum and added exact SDK-free
+  contracts for the generated wrapper artifacts and documentation boundary.
+
 ## 2026-06-10
 
 - Changed fridge-list persistence to write UTF-8 content to a same-directory
@@ -13,6 +20,8 @@
 - Added an SDK-free guard requiring the CI workflow and completed CI baseline
   plan to remain checked in.
 - Removed the maintainer-specific Android SDK path from the Makefile.
+- Disabled persisted checkout credentials, added self-protecting CODEOWNERS,
+  and replaced partial workflow checks with one canonical workflow contract.
 
 ## 2026-06-09
 
