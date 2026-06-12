@@ -51,6 +51,9 @@
 - Fridge item input is trimmed before persistence, and whitespace-only entries are ignored.
 - A missing item input view is treated as empty input so stale tablet layouts do not crash item creation or keyboard setup.
 - A missing list view skips list wiring, and stale long-click positions are ignored before item removal.
+- If an existing fridge-item file cannot be read, storage becomes unavailable,
+  the UI reports the localized error, and add/write paths fail closed rather
+  than replacing unreadable data.
 
 ## Agent workflow
 

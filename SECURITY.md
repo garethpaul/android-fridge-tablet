@@ -31,6 +31,11 @@ Helpful reports include:
 - Dependency manifests detected: build.gradle, gradle.properties. Dependency updates should preserve lockfiles when present and avoid introducing packages without a clear maintenance reason.
 - Pinned, read-only GitHub Actions runs the repository `make check` baseline
   before review without inheriting hosted Android SDK state.
+- Hosted checkout credentials are not persisted. Self-protecting CODEOWNERS
+  assigns the workflow, Makefile, and baseline checker to the repository owner;
+  repository rules should require that approval.
+- `check.yml` remains the only approved workflow until another workflow
+  receives an explicit least-privilege security contract.
 - Stale tablet layouts should not crash local-only fridge data flows when
   optional header or list views are unavailable.
 

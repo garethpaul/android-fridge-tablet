@@ -3,6 +3,11 @@
 <!-- README-OVERVIEW-IMAGE -->
 ![Project overview](docs/readme-overview.svg)
 
+## Device Preview
+
+<!-- DEVICE-PREVIEW-IMAGE -->
+![Device preview](docs/device-preview.svg)
+
 ## Overview
 
 `garethpaul/android-fridge-tablet` is an Android application or sample. The App for my fridge.
@@ -59,16 +64,18 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 - `make check` - runs the source baseline and Android SDK-backed Gradle checks
   when `ANDROID_HOME` or `ANDROID_SDK_ROOT` is configured
 - `scripts/check-baseline.sh` - runs SDK-free Fridge tablet baseline checks.
-- GitHub Actions runs `make check` through `.github/workflows/check.yml` on
-  pushes, pull requests, and manual dispatches using Ubuntu 24.04 with
-  superseded-run cancellation.
-- Local Gradle checks accept `ANDROID_HOME` or `ANDROID_SDK_ROOT`; CI clears
-  both variables to preserve the documented static-only boundary.
+- The canonical GitHub Actions workflow installs Android API 22 and build-tools
+  24.0.3, selects Java 8, and runs full `make check` on pushes, pull requests,
+  and manual dispatches using Ubuntu 24.04 with superseded-run cancellation.
+- Local Gradle checks accept `ANDROID_HOME` or `ANDROID_SDK_ROOT` and match the
+  hosted toolchain contract.
 - The baseline check protects internal storage, date formatting, layout
   resources, and fridge item input normalization.
 - `./gradlew lint --no-daemon`, `./gradlew test --no-daemon`, and `./gradlew assembleDebug --no-daemon` when the Android SDK is configured.
 
-When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
+The legacy plugin uses its non-queued PNG cruncher because AGP 1.1's newer
+concurrent cruncher can fail nondeterministically on clean hosted builds. When
+the SDK is unavailable locally, rely on the hosted matching toolchain.
 
 ## Configuration and Secrets
 
@@ -135,6 +142,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - See `docs/plans/2026-06-09-fridge-item-file-encoding.md` for the local item
   file encoding contract.
 - See `docs/plans/2026-06-10-ci-baseline.md` for the GitHub Actions baseline.
+- See `docs/plans/2026-06-12-hosted-android-verification.md` for the complete
+  hosted Android lint, test, and build gate.
 - See `docs/plans/2026-06-12-fridge-read-failure-write-guard.md` for the
   fail-closed item-read contract.
 
