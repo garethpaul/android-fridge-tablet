@@ -163,7 +163,10 @@ public class MainActivity extends Activity {
             return "";
         }
 
-        return itemInput.getText().toString().trim();
+        return itemInput.getText().toString()
+                .replace('\r', ' ')
+                .replace('\n', ' ')
+                .trim();
     }
 
     // Read Items from persistent storage
