@@ -183,7 +183,7 @@ public class MainActivity extends Activity {
             itemStorageAvailable = true;
         } catch (IOException e) {
             itemStorageAvailable = false;
-            Log.w(LOG_TAG, "Unable to read fridge items", e);
+            Log.w(LOG_TAG, "Unable to read fridge items");
             showReadError();
         }
     }
@@ -205,7 +205,7 @@ public class MainActivity extends Activity {
             }
             written = true;
         } catch (IOException e) {
-            Log.w(LOG_TAG, "Unable to write fridge items", e);
+            Log.w(LOG_TAG, "Unable to write fridge items");
         } finally {
             if (temporaryFile.exists() && !temporaryFile.delete()) {
                 Log.w(LOG_TAG, "Unable to remove temporary fridge item file");

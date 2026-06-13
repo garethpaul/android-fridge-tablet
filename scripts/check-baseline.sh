@@ -9,6 +9,7 @@ SECURITY="$ROOT_DIR/SECURITY.md"
 CI_WORKFLOW="$ROOT_DIR/.github/workflows/check.yml"
 CODEOWNERS="$ROOT_DIR/.github/CODEOWNERS"
 READ_FAILURE_PLAN="$ROOT_DIR/docs/plans/2026-06-12-fridge-read-failure-write-guard.md"
+STORAGE_LOG_PLAN="$ROOT_DIR/docs/plans/2026-06-13-fridge-storage-log-redaction.md"
 CI_PLAN="$ROOT_DIR/docs/plans/2026-06-10-ci-baseline.md"
 HOSTED_ANDROID_PLAN="$ROOT_DIR/docs/plans/2026-06-12-hosted-android-verification.md"
 WRAPPER_PLAN="$ROOT_DIR/docs/plans/2026-06-12-gradle-wrapper-verification.md"
@@ -217,7 +218,7 @@ if grep -Fq "printStackTrace()" "$MAIN_ACTIVITY"; then
 fi
 
 require_contains "app/src/main/java/garethpaul/com/fridge/MainActivity.java" \
-  'Log.w(LOG_TAG, "Unable to write fridge items", e);' \
+  'Log.w(LOG_TAG, "Unable to write fridge items");' \
   "Fridge write failures must log a sanitized warning."
 
 for read_failure_contract in \
@@ -225,11 +226,36 @@ for read_failure_contract in \
   "if (!todoFile.exists())" \
   "itemStorageAvailable = true;" \
   "itemStorageAvailable = false;" \
-  'Log.w(LOG_TAG, "Unable to read fridge items", e);' \
+  'Log.w(LOG_TAG, "Unable to read fridge items");' \
   "showReadError();" \
   "R.string.read_items_error"; do
   if ! grep -Fq "$read_failure_contract" "$MAIN_ACTIVITY"; then
     printf '%s\n' "Fridge read-failure handling must keep contract: $read_failure_contract" >&2
+    exit 1
+  fi
+done
+
+if [ "$(grep -Fc 'Log.w(LOG_TAG,' "$MAIN_ACTIVITY" || true)" -ne 3 ]; then
+  printf '%s\n' "Fridge storage must keep exactly three reviewed generic warnings." >&2
+  exit 1
+fi
+for sensitive_storage_log in "getMessage()" "printStackTrace()" "Log.getStackTraceString" ", e);"; do
+  if grep -Fq "$sensitive_storage_log" "$MAIN_ACTIVITY"; then
+    printf '%s\n' "Fridge storage logs must not include exception-derived details: $sensitive_storage_log" >&2
+    exit 1
+  fi
+done
+if [ ! -f "$STORAGE_LOG_PLAN" ] || \
+   ! grep -Fq "Status: Completed" "$STORAGE_LOG_PLAN" || \
+   ! grep -Fq "make check" "$STORAGE_LOG_PLAN" || \
+   ! grep -Fq "hostile mutations" "$STORAGE_LOG_PLAN"; then
+  printf '%s\n' "Fridge storage log-redaction plan must record completed verification." >&2
+  exit 1
+fi
+for storage_doc in "$README" "$SECURITY" "$ROOT_DIR/CHANGES.md"; do
+  if ! tr '\n' ' ' < "$storage_doc" | tr -s '[:space:]' ' ' | \
+      grep -Fiq "generic fridge storage failure logs"; then
+    printf '%s\n' "$storage_doc must document generic fridge storage failure logs." >&2
     exit 1
   fi
 done

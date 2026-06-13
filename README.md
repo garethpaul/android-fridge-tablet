@@ -112,8 +112,12 @@ the SDK is unavailable locally, rely on the hosted matching toolchain.
   tablet environments without a service do not crash the activity.
 - Fridge item contents are not written to verbose logs during local storage
   reads or write failures.
+- Read, write, and temporary-file cleanup failures use generic fridge storage
+  failure logs without exception messages, stack traces, or internal paths.
 - Android backup is disabled in the checked-in manifest so local fridge-list
   contents stay out of platform backups by default.
+- [`docs/plans/2026-06-13-fridge-storage-log-redaction.md`](docs/plans/2026-06-13-fridge-storage-log-redaction.md)
+  records the storage logging contract and its verification evidence.
 
 ## Security and Privacy Notes
 
