@@ -4,6 +4,8 @@
 
 - Routed storage permission failures through the existing fail-closed read and
   rollback write paths without broad exception handling.
+- Guarded an unavailable app files directory before read or write file
+  construction, preserving fail-closed state and visible rollback.
 - Normalized line separators in fridge item input so one submitted item remains
   one persisted list entry after reload.
 - Replaced throwable-bearing read and write warnings with generic fridge

@@ -172,6 +172,13 @@ public class MainActivity extends Activity {
     // Read Items from persistent storage
     private void readItems() {
         File filesDir = getFilesDir();
+        if (filesDir == null) {
+            items = new ArrayList<String>();
+            itemStorageAvailable = false;
+            Log.w(LOG_TAG, "Unable to read fridge items");
+            showReadError();
+            return;
+        }
         File todoFile = new File(filesDir, textFileName);
         items = new ArrayList<String>();
         try {
@@ -198,6 +205,10 @@ public class MainActivity extends Activity {
         }
 
         File filesDir = getFilesDir();
+        if (filesDir == null) {
+            Log.w(LOG_TAG, "Unable to write fridge items");
+            return false;
+        }
         File todoFile = new File(filesDir, textFileName);
         File temporaryFile = new File(filesDir, ITEM_TEMP_FILE_NAME);
         boolean written = false;
