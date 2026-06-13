@@ -118,6 +118,8 @@ the SDK is unavailable locally, rely on the hosted matching toolchain.
   failure logs without exception messages, stack traces, or internal paths.
 - Storage permission failures use the same fail-closed read state and write
   rollback paths as I/O failures instead of escaping the activity.
+- An unavailable app files directory fails reads closed and routes writes
+  through the existing visible rollback path.
 - Android backup is disabled in the checked-in manifest so local fridge-list
   contents stay out of platform backups by default.
 - [`docs/plans/2026-06-13-fridge-storage-log-redaction.md`](docs/plans/2026-06-13-fridge-storage-log-redaction.md)

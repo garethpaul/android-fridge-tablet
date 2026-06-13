@@ -12,6 +12,7 @@ READ_FAILURE_PLAN="$ROOT_DIR/docs/plans/2026-06-12-fridge-read-failure-write-gua
 STORAGE_LOG_PLAN="$ROOT_DIR/docs/plans/2026-06-13-fridge-storage-log-redaction.md"
 SINGLE_LINE_PLAN="$ROOT_DIR/docs/plans/2026-06-13-fridge-single-line-items.md"
 STORAGE_SECURITY_PLAN="$ROOT_DIR/docs/plans/2026-06-13-fridge-storage-security-exceptions.md"
+FILES_DIR_PLAN="$ROOT_DIR/docs/plans/2026-06-13-fridge-files-directory-unavailable.md"
 CI_PLAN="$ROOT_DIR/docs/plans/2026-06-10-ci-baseline.md"
 HOSTED_ANDROID_PLAN="$ROOT_DIR/docs/plans/2026-06-12-hosted-android-verification.md"
 WRAPPER_PLAN="$ROOT_DIR/docs/plans/2026-06-12-gradle-wrapper-verification.md"
@@ -257,6 +258,39 @@ WRITE_ITEMS_METHOD=$(sed -n '/private boolean writeItems()/,/^    }/p' "$MAIN_AC
 READ_ITEMS_COMPACT=$(printf '%s\n' "$READ_ITEMS_METHOD" | tr -d '[:space:]')
 WRITE_ITEMS_COMPACT=$(printf '%s\n' "$WRITE_ITEMS_METHOD" | tr -d '[:space:]')
 
+files_dir_guard_count=$(grep -Fc "if (filesDir == null)" "$MAIN_ACTIVITY")
+if [ "$files_dir_guard_count" -ne 2 ]; then
+  printf '%s\n' "Fridge read and write paths must both guard a missing files directory." >&2
+  exit 1
+fi
+if ! awk '
+  /private void readItems\(\)/ { in_read = 1 }
+  /private boolean writeItems\(\)/ { in_read = 0; in_write = 1 }
+  /private void showWriteError\(\)/ { in_write = 0 }
+  in_read && /File filesDir = getFilesDir\(\);/ { read_lookup = NR }
+  in_read && /if \(filesDir == null\)/ { read_guard = NR }
+  in_read && read_guard && /itemStorageAvailable = false;/ && !read_unavailable { read_unavailable = NR }
+  in_read && read_guard && /Log\.w\(LOG_TAG, "Unable to read fridge items"\);/ && !read_log { read_log = NR }
+  in_read && read_guard && /showReadError\(\);/ && !read_error { read_error = NR }
+  in_read && /File todoFile = new File\(filesDir, textFileName\);/ { read_file = NR }
+  in_write && /File filesDir = getFilesDir\(\);/ { write_lookup = NR }
+  in_write && /if \(filesDir == null\)/ { write_guard = NR }
+  in_write && /Log\.w\(LOG_TAG, "Unable to write fridge items"\);/ && !write_log { write_log = NR }
+  in_write && write_guard && /return false;/ && !write_false { write_false = NR }
+  in_write && /File todoFile = new File\(filesDir, textFileName\);/ { write_file = NR }
+  END {
+    exit !(read_lookup && read_guard && read_unavailable && read_log && read_error && read_file &&
+      read_lookup < read_guard && read_guard < read_unavailable &&
+      read_unavailable < read_log && read_log < read_error && read_error < read_file &&
+      write_lookup && write_guard && write_log && write_false && write_file &&
+      write_lookup < write_guard && write_guard < write_log &&
+      write_log < write_false && write_false < write_file)
+  }
+' "$MAIN_ACTIVITY"; then
+  printf '%s\n' "Fridge files-directory guards must fail closed before file construction." >&2
+  exit 1
+fi
+
 for storage_catch in "$READ_ITEMS_COMPACT" "$WRITE_ITEMS_COMPACT"; do
   for broad_catch in 'catch(RuntimeException' 'catch(Exception' 'catch(Throwable'; do
     if printf '%s\n' "$storage_catch" | grep -Fq "$broad_catch"; then
@@ -295,8 +329,11 @@ for write_security_contract in \
   fi
 done
 
-if [ "$(grep -Fc 'Log.w(LOG_TAG,' "$MAIN_ACTIVITY" || true)" -ne 3 ]; then
-  printf '%s\n' "Fridge storage must keep exactly three reviewed generic warnings." >&2
+if [ "$(grep -Fc 'Log.w(LOG_TAG,' "$MAIN_ACTIVITY" || true)" -ne 5 ] || \
+   [ "$(grep -Fc 'Log.w(LOG_TAG, "Unable to read fridge items");' "$MAIN_ACTIVITY")" -ne 2 ] || \
+   [ "$(grep -Fc 'Log.w(LOG_TAG, "Unable to write fridge items");' "$MAIN_ACTIVITY")" -ne 2 ] || \
+   [ "$(grep -Fc 'Log.w(LOG_TAG, "Unable to remove temporary fridge item file");' "$MAIN_ACTIVITY")" -ne 1 ]; then
+  printf '%s\n' "Fridge storage must keep exactly five reviewed generic warnings." >&2
   exit 1
 fi
 for sensitive_storage_log in "getMessage()" "printStackTrace()" "Log.getStackTraceString" ", e);"; do
@@ -596,6 +633,20 @@ for storage_security_doc in "$README" "$SECURITY" "$ROOT_DIR/VISION.md" "$ROOT_D
   if ! tr '\n' ' ' < "$storage_security_doc" | tr -s '[:space:]' ' ' | \
       grep -Fiq "storage permission failures"; then
     printf '%s\n' "$storage_security_doc must document storage permission failures." >&2
+    exit 1
+  fi
+done
+
+if [ ! -f "$FILES_DIR_PLAN" ] || \
+   ! grep -Fq "Status: Completed" "$FILES_DIR_PLAN" || \
+   ! grep -Fq "make check" "$FILES_DIR_PLAN" || \
+   ! grep -Fq "hostile mutations" "$FILES_DIR_PLAN"; then
+  printf '%s\n' "Fridge files-directory plan must record completed verification." >&2
+  exit 1
+fi
+for files_dir_doc in "$ROOT_DIR/AGENTS.md" "$README" "$SECURITY" "$ROOT_DIR/VISION.md" "$ROOT_DIR/CHANGES.md"; do
+  if ! grep -Fq "unavailable app files directory" "$files_dir_doc"; then
+    printf '%s\n' "$files_dir_doc must document unavailable app storage handling." >&2
     exit 1
   fi
 done

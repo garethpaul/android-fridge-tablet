@@ -31,6 +31,7 @@ Priority:
 - Keep local item file encoding explicit across device defaults
 - Keep storage permission failures inside fail-closed read and rollback write
   boundaries
+- Fail closed when Android reports an unavailable app files directory
 - Replace fridge-list contents through a temporary file instead of truncating
   the destination during writes
 - Keep optional tablet input services guarded before keyboard operations

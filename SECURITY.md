@@ -45,6 +45,8 @@ Helpful reports include:
   categories without recording exception messages, stack traces, or internal
   paths. Storage permission failures remain inside those reviewed fail-closed
   and rollback boundaries instead of crashing the activity.
+- An unavailable app files directory is rejected before canonical or temporary
+  storage files are constructed.
 - Line separators in fridge item input are normalized before line-oriented
   local persistence so one submission cannot create extra entries on reload.
 
