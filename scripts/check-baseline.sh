@@ -11,6 +11,7 @@ CODEOWNERS="$ROOT_DIR/.github/CODEOWNERS"
 READ_FAILURE_PLAN="$ROOT_DIR/docs/plans/2026-06-12-fridge-read-failure-write-guard.md"
 STORAGE_LOG_PLAN="$ROOT_DIR/docs/plans/2026-06-13-fridge-storage-log-redaction.md"
 SINGLE_LINE_PLAN="$ROOT_DIR/docs/plans/2026-06-13-fridge-single-line-items.md"
+STORAGE_SECURITY_PLAN="$ROOT_DIR/docs/plans/2026-06-13-fridge-storage-security-exceptions.md"
 CI_PLAN="$ROOT_DIR/docs/plans/2026-06-10-ci-baseline.md"
 HOSTED_ANDROID_PLAN="$ROOT_DIR/docs/plans/2026-06-12-hosted-android-verification.md"
 WRAPPER_PLAN="$ROOT_DIR/docs/plans/2026-06-12-gradle-wrapper-verification.md"
@@ -159,7 +160,9 @@ for pattern in \
   "ITEM_FILE_ENCODING));" \
   "FileUtils.writeLines(temporaryFile, ITEM_FILE_ENCODING, items);" \
   "if (!temporaryFile.renameTo(todoFile))" \
-  "if (temporaryFile.exists() && !temporaryFile.delete())" \
+  "temporaryFileRemoved = !temporaryFile.exists() || temporaryFile.delete();" \
+  "catch (SecurityException e)" \
+  "if (!temporaryFileRemoved)" \
   "String itemText = normalizedItemText(etNewItem);" \
   "if (itemText.length() == 0)" \
   "if (etNewItem != null)" \
@@ -245,6 +248,49 @@ for read_failure_contract in \
   "R.string.read_items_error"; do
   if ! grep -Fq "$read_failure_contract" "$MAIN_ACTIVITY"; then
     printf '%s\n' "Fridge read-failure handling must keep contract: $read_failure_contract" >&2
+    exit 1
+  fi
+done
+
+READ_ITEMS_METHOD=$(sed -n '/private void readItems()/,/^    }/p' "$MAIN_ACTIVITY")
+WRITE_ITEMS_METHOD=$(sed -n '/private boolean writeItems()/,/^    }/p' "$MAIN_ACTIVITY")
+READ_ITEMS_COMPACT=$(printf '%s\n' "$READ_ITEMS_METHOD" | tr -d '[:space:]')
+WRITE_ITEMS_COMPACT=$(printf '%s\n' "$WRITE_ITEMS_METHOD" | tr -d '[:space:]')
+
+for storage_catch in "$READ_ITEMS_COMPACT" "$WRITE_ITEMS_COMPACT"; do
+  for broad_catch in 'catch(RuntimeException' 'catch(Exception' 'catch(Throwable'; do
+    if printf '%s\n' "$storage_catch" | grep -Fq "$broad_catch"; then
+      printf '%s\n' "Fridge storage boundaries must not use broad catch: $broad_catch" >&2
+      exit 1
+    fi
+  done
+
+  if ! printf '%s\n' "$storage_catch" | \
+      grep -Fq 'catch(IOException|SecurityExceptione)'; then
+    printf '%s\n' "Fridge storage boundaries must handle IOException and SecurityException." >&2
+    exit 1
+  fi
+done
+
+for read_security_contract in \
+  'try{if(!todoFile.exists())' \
+  'itemStorageAvailable=false;' \
+  'Log.w(LOG_TAG,"Unabletoreadfridgeitems");' \
+  'showReadError();'; do
+  if ! printf '%s\n' "$READ_ITEMS_COMPACT" | grep -Fq "$read_security_contract"; then
+    printf '%s\n' "Fridge security read failures must keep contract: $read_security_contract" >&2
+    exit 1
+  fi
+done
+
+for write_security_contract in \
+  'Log.w(LOG_TAG,"Unabletowritefridgeitems");' \
+  'temporaryFileRemoved=!temporaryFile.exists()||temporaryFile.delete();' \
+  'catch(SecurityExceptione){temporaryFileRemoved=false;}' \
+  'if(!temporaryFileRemoved){Log.w(LOG_TAG,"Unabletoremovetemporaryfridgeitemfile");}' \
+  'returnwritten;'; do
+  if ! printf '%s\n' "$WRITE_ITEMS_COMPACT" | grep -Fq "$write_security_contract"; then
+    printf '%s\n' "Fridge security write failures must keep contract: $write_security_contract" >&2
     exit 1
   fi
 done
@@ -532,6 +578,24 @@ for single_line_doc in "$ROOT_DIR/AGENTS.md" "$README" "$SECURITY" "$ROOT_DIR/VI
   if ! tr '\n' ' ' < "$single_line_doc" | tr -s '[:space:]' ' ' | \
       grep -Fiq "line separators in fridge item input"; then
     printf '%s\n' "$single_line_doc must document the single-line persistence boundary." >&2
+    exit 1
+  fi
+done
+
+if [ ! -f "$STORAGE_SECURITY_PLAN" ] || \
+   ! grep -Fq "Status: Completed" "$STORAGE_SECURITY_PLAN" || \
+   ! grep -Fq "## Verification Completed" "$STORAGE_SECURITY_PLAN" || \
+   ! grep -Fq "make check" "$STORAGE_SECURITY_PLAN" || \
+   ! grep -Fq "Eight focused hostile mutations" "$STORAGE_SECURITY_PLAN" || \
+   ! grep -Fq "generated-artifact and credential-shaped" "$STORAGE_SECURITY_PLAN"; then
+  printf '%s\n' "Fridge storage security-exception plan must record completed verification." >&2
+  exit 1
+fi
+
+for storage_security_doc in "$README" "$SECURITY" "$ROOT_DIR/VISION.md" "$ROOT_DIR/CHANGES.md"; do
+  if ! tr '\n' ' ' < "$storage_security_doc" | tr -s '[:space:]' ' ' | \
+      grep -Fiq "storage permission failures"; then
+    printf '%s\n' "$storage_security_doc must document storage permission failures." >&2
     exit 1
   fi
 done
