@@ -43,7 +43,8 @@ Helpful reports include:
   optional header or list views are unavailable.
 - Generic fridge storage failure logs identify read, write, and cleanup
   categories without recording exception messages, stack traces, or internal
-  file paths.
+  paths. Storage permission failures remain inside those reviewed fail-closed
+  and rollback boundaries instead of crashing the activity.
 - Line separators in fridge item input are normalized before line-oriented
   local persistence so one submission cannot create extra entries on reload.
 

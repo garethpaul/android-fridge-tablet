@@ -174,17 +174,17 @@ public class MainActivity extends Activity {
         File filesDir = getFilesDir();
         File todoFile = new File(filesDir, textFileName);
         items = new ArrayList<String>();
-        if (!todoFile.exists()) {
-            itemStorageAvailable = true;
-            return;
-        }
-
         try {
+            if (!todoFile.exists()) {
+                itemStorageAvailable = true;
+                return;
+            }
+
             items = new ArrayList<String>(FileUtils.readLines(
                     todoFile,
                     ITEM_FILE_ENCODING));
             itemStorageAvailable = true;
-        } catch (IOException e) {
+        } catch (IOException | SecurityException e) {
             itemStorageAvailable = false;
             Log.w(LOG_TAG, "Unable to read fridge items");
             showReadError();
@@ -207,10 +207,16 @@ public class MainActivity extends Activity {
                 throw new IOException("Unable to replace fridge item file");
             }
             written = true;
-        } catch (IOException e) {
+        } catch (IOException | SecurityException e) {
             Log.w(LOG_TAG, "Unable to write fridge items");
         } finally {
-            if (temporaryFile.exists() && !temporaryFile.delete()) {
+            boolean temporaryFileRemoved;
+            try {
+                temporaryFileRemoved = !temporaryFile.exists() || temporaryFile.delete();
+            } catch (SecurityException e) {
+                temporaryFileRemoved = false;
+            }
+            if (!temporaryFileRemoved) {
                 Log.w(LOG_TAG, "Unable to remove temporary fridge item file");
             }
         }

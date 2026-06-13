@@ -29,6 +29,8 @@ Priority:
 - Keep date header updates safe when stale tablet layouts omit the header
 - Keep menu callbacks guarded when stale action-bar paths pass missing values
 - Keep local item file encoding explicit across device defaults
+- Keep storage permission failures inside fail-closed read and rollback write
+  boundaries
 - Replace fridge-list contents through a temporary file instead of truncating
   the destination during writes
 - Keep optional tablet input services guarded before keyboard operations
