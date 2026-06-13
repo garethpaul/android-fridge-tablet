@@ -1,5 +1,11 @@
 # Changes
 
+## 2026-06-13
+
+- Replaced throwable-bearing read and write warnings with generic fridge
+  storage failure logs and added regression contracts against exception-derived
+  or additive storage logging.
+
 ## 2026-06-12
 
 - Regenerated the Gradle wrapper bootstrap with official Gradle 8.14.5 tooling

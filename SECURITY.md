@@ -41,6 +41,9 @@ Helpful reports include:
   receives an explicit least-privilege security contract.
 - Stale tablet layouts should not crash local-only fridge data flows when
   optional header or list views are unavailable.
+- Generic fridge storage failure logs identify read, write, and cleanup
+  categories without recording exception messages, stack traces, or internal
+  file paths.
 
 ## Mobile Privacy Notes
 
