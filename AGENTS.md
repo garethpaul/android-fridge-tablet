@@ -49,6 +49,8 @@
 - This legacy Android baseline pins Android build-tools 24.0.3 and preserves target SDK 21.
 - Fridge items are stored in the app's internal files directory, so the app does not request external storage permissions.
 - Fridge item input is trimmed before persistence, and whitespace-only entries are ignored.
+- Line separators in fridge item input are converted to spaces so one submitted
+  item remains one persisted item after reload.
 - A missing item input view is treated as empty input so stale tablet layouts do not crash item creation or keyboard setup.
 - A missing list view skips list wiring, and stale long-click positions are ignored before item removal.
 - If an existing fridge-item file cannot be read, storage becomes unavailable,

@@ -2,6 +2,8 @@
 
 ## 2026-06-13
 
+- Normalized line separators in fridge item input so one submitted item remains
+  one persisted list entry after reload.
 - Replaced throwable-bearing read and write warnings with generic fridge
   storage failure logs and added regression contracts against exception-derived
   or additive storage logging.

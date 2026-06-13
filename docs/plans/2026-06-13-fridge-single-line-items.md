@@ -1,6 +1,6 @@
 # Fridge Single-Line Item Persistence
 
-Status: Planned
+Status: Completed
 
 ## Priority
 
@@ -62,7 +62,15 @@ Describe the line-oriented persistence boundary and record exact verification.
 
 ## Verification
 
-Pending implementation and execution.
+- An isolated repository copy passed SDK-backed `make check`, covering the
+  SDK-free baseline, zero-issue Android lint for debug and release, debug and
+  release unit-test tasks, and debug APK assembly.
+- Seven hostile mutations were rejected: carriage-return replacement, newline
+  replacement, trimming, null handling, guidance, plan status, and plan
+  evidence regressions.
+- Canonical and external-directory SDK-backed `make check` both passed against
+  the exact completed implementation, covering the same zero-issue lint, unit
+  test, APK assembly, and SDK-free contracts.
 
 ## Sources
 

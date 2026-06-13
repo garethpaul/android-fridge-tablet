@@ -10,6 +10,7 @@ CI_WORKFLOW="$ROOT_DIR/.github/workflows/check.yml"
 CODEOWNERS="$ROOT_DIR/.github/CODEOWNERS"
 READ_FAILURE_PLAN="$ROOT_DIR/docs/plans/2026-06-12-fridge-read-failure-write-guard.md"
 STORAGE_LOG_PLAN="$ROOT_DIR/docs/plans/2026-06-13-fridge-storage-log-redaction.md"
+SINGLE_LINE_PLAN="$ROOT_DIR/docs/plans/2026-06-13-fridge-single-line-items.md"
 CI_PLAN="$ROOT_DIR/docs/plans/2026-06-10-ci-baseline.md"
 HOSTED_ANDROID_PLAN="$ROOT_DIR/docs/plans/2026-06-12-hosted-android-verification.md"
 WRAPPER_PLAN="$ROOT_DIR/docs/plans/2026-06-12-gradle-wrapper-verification.md"
@@ -170,10 +171,23 @@ for pattern in \
   "if (item == null)" \
   "private String normalizedItemText(EditText itemInput)" \
   "if (itemInput == null || itemInput.getText() == null)" \
-  "return itemInput.getText().toString().trim();" \
   "items.add(itemText);"; do
   if ! grep -Fq "$pattern" "$MAIN_ACTIVITY"; then
     printf '%s\n' "Missing source baseline pattern: $pattern" >&2
+    exit 1
+  fi
+done
+
+NORMALIZED_ITEM_HELPER=$(sed -n \
+  '/private String normalizedItemText(EditText itemInput)/,/^    }/p' \
+  "$MAIN_ACTIVITY" | tr -d '\n\r\t')
+for single_line_contract in \
+  "if (itemInput == null || itemInput.getText() == null) {            return \"\";        }" \
+  ".replace('\\r', ' ')" \
+  ".replace('\\n', ' ')" \
+  ".trim();"; do
+  if ! printf '%s\n' "$NORMALIZED_ITEM_HELPER" | grep -Fq "$single_line_contract"; then
+    printf '%s\n' "Fridge item normalization must keep contract: $single_line_contract" >&2
     exit 1
   fi
 done
@@ -505,6 +519,22 @@ if ! grep -Fq "canonical GitHub Actions workflow installs Android API 22" "$READ
   printf '%s\n' "README must document the hosted Android gate and plan." >&2
   exit 1
 fi
+
+if [ ! -f "$SINGLE_LINE_PLAN" ] || \
+   ! grep -Fq "Status: Completed" "$SINGLE_LINE_PLAN" || \
+   ! grep -Fq "make check" "$SINGLE_LINE_PLAN" || \
+   ! grep -Fq "hostile mutations" "$SINGLE_LINE_PLAN"; then
+  printf '%s\n' "Fridge single-line item plan must record completed verification." >&2
+  exit 1
+fi
+
+for single_line_doc in "$ROOT_DIR/AGENTS.md" "$README" "$SECURITY" "$ROOT_DIR/VISION.md" "$ROOT_DIR/CHANGES.md"; do
+  if ! tr '\n' ' ' < "$single_line_doc" | tr -s '[:space:]' ' ' | \
+      grep -Fiq "line separators in fridge item input"; then
+    printf '%s\n' "$single_line_doc must document the single-line persistence boundary." >&2
+    exit 1
+  fi
+done
 
 if [ ! -f "$CODEOWNERS" ] ||
   [ "$(wc -l < "$CODEOWNERS" | tr -d ' ')" -ne 4 ] ||

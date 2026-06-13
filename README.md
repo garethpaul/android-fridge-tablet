@@ -91,6 +91,8 @@ the SDK is unavailable locally, rely on the hosted matching toolchain.
 - Fridge items are stored in the app's internal files directory, so the app does not request external storage permissions.
 - Fridge item input is trimmed before persistence, and whitespace-only entries
   are ignored.
+- Line separators in fridge item input are converted to spaces so line-oriented
+  storage reloads each submitted item as one list entry.
 - A missing item input view is treated as empty input so stale tablet layouts
   do not crash item creation or keyboard setup.
 - A missing list view skips list wiring, and stale long-click positions are
@@ -136,6 +138,8 @@ the SDK is unavailable locally, rely on the hosted matching toolchain.
   verification wrapper baseline.
 - See `docs/plans/2026-06-09-fridge-item-input-normalization.md` for the item
   input normalization contract.
+- See `docs/plans/2026-06-13-fridge-single-line-items.md` for the persisted
+  single-line item boundary.
 - See `docs/plans/2026-06-09-fridge-item-input-null-guard.md` for the item
   input null guard.
 - See `docs/plans/2026-06-09-fridge-list-view-guards.md` for the list view

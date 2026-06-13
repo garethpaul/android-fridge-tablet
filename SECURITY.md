@@ -44,6 +44,8 @@ Helpful reports include:
 - Generic fridge storage failure logs identify read, write, and cleanup
   categories without recording exception messages, stack traces, or internal
   file paths.
+- Line separators in fridge item input are normalized before line-oriented
+  local persistence so one submission cannot create extra entries on reload.
 
 ## Mobile Privacy Notes
 
