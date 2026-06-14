@@ -49,6 +49,8 @@ Helpful reports include:
   storage files are constructed.
 - A 1 MiB item-storage limit rejects oversized existing files before parsing
   and oversized temporary output before replacing the durable list.
+- A preflight size check runs before temporary output is opened, while the
+  post-write check remains in place before replacement.
 - Line separators in fridge item input are normalized before line-oriented
   local persistence so one submission cannot create extra entries on reload.
 

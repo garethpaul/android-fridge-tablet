@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
 public class MainActivity extends Activity {
 
@@ -202,6 +203,25 @@ public class MainActivity extends Activity {
         }
     }
 
+    private boolean itemFileFitsSizeLimit() throws IOException {
+        long encodedBytes = 0;
+        byte[] lineSeparator = IOUtils.LINE_SEPARATOR.getBytes(ITEM_FILE_ENCODING);
+        for (String item : items) {
+            if (item != null) {
+                byte[] itemBytes = item.getBytes(ITEM_FILE_ENCODING);
+                if (itemBytes.length > ITEM_FILE_MAX_BYTES - encodedBytes) {
+                    return false;
+                }
+                encodedBytes += itemBytes.length;
+            }
+            if (lineSeparator.length > ITEM_FILE_MAX_BYTES - encodedBytes) {
+                return false;
+            }
+            encodedBytes += lineSeparator.length;
+        }
+        return true;
+    }
+
     // Write items to persistent storage
     private boolean writeItems() {
         if (!itemStorageAvailable) {
@@ -217,6 +237,9 @@ public class MainActivity extends Activity {
         File temporaryFile = new File(filesDir, ITEM_TEMP_FILE_NAME);
         boolean written = false;
         try {
+            if (!itemFileFitsSizeLimit()) {
+                throw new IOException("Fridge item file is too large");
+            }
             FileUtils.writeLines(temporaryFile, ITEM_FILE_ENCODING, items);
             if (temporaryFile.length() > ITEM_FILE_MAX_BYTES) {
                 throw new IOException("Fridge item file is too large");
