@@ -84,6 +84,11 @@ The legacy plugin uses its non-queued PNG cruncher because AGP 1.1's newer
 concurrent cruncher can fail nondeterministically on clean hosted builds. When
 the SDK is unavailable locally, rely on the hosted matching toolchain.
 
+Use [`DEVICE_VERIFICATION.md`](DEVICE_VERIFICATION.md) for the exact-commit
+emulator/tablet storage matrix. It covers persistence, atomic replacement,
+corruption, size limits, rollback, lifecycle, backup, privacy-safe evidence,
+and explicit unexecuted rows.
+
 ## Configuration and Secrets
 
 - No required secret or credential file was identified in the repository scan. If you add integrations later, keep secrets out of git.
@@ -137,6 +142,9 @@ the SDK is unavailable locally, rely on the hosted matching toolchain.
 - Review changes touching file, media, JSON, XML, CSV, OCR, or data parsing; examples from the scan include app/lint.xml, app/src/main/AndroidManifest.xml, app/src/main/java/garethpaul/com/fridge/MainActivity.java, app/src/main/res/values/color.xml, and 2 more.
 
 ## Maintenance Notes
+
+- See `docs/plans/2026-06-14-fridge-device-verification-checklist.md` for the
+  tablet/storage evidence matrix and runtime non-claims.
 
 - This looks like a legacy Android project or sample. Expect Android SDK, Gradle, and support-library versions to matter.
 - The current baseline keeps Gradle 2.2.1, Android Gradle Plugin 1.1.0, compile SDK 22, target SDK 21, and Android build-tools 24.0.3.

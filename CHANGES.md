@@ -6,6 +6,9 @@
   output can replace the durable fridge list.
 - Preflighted encoded fridge item size before opening temporary output while
   retaining the post-write check before durable replacement.
+- Added an exact-commit Fridge tablet verification matrix for persistence,
+  corruption, size limits, rollback, lifecycle, backup, and privacy-safe
+  evidence, with every runtime row explicitly unexecuted.
 
 ## 2026-06-13
 
