@@ -108,6 +108,8 @@ the SDK is unavailable locally, rely on the hosted matching toolchain.
 - Fridge item storage is capped at 1 MiB before parsing or durable replacement,
   preventing corrupted input or oversized output from becoming unbounded UI
   thread work.
+- Fridge preflights the UTF-8 serialized size before opening temporary output
+  and retains the post-write size check before durable replacement.
 - Failed item writes roll back the visible list to its last durable state and
   show a localized warning without exposing item contents.
 - An unreadable existing item file shows a localized warning and disables

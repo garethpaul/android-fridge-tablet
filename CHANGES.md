@@ -4,6 +4,8 @@
 
 - Added a 1 MiB item-file limit before full-file parsing and before temporary
   output can replace the durable fridge list.
+- Preflighted encoded fridge item size before opening temporary output while
+  retaining the post-write check before durable replacement.
 
 ## 2026-06-13
 

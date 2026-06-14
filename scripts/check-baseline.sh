@@ -206,6 +206,52 @@ if ! awk '
   printf '%s\n' "Fridge item size checks must precede parsing and durable replacement." >&2
   exit 1
 fi
+for preflight_size_contract in \
+  "import org.apache.commons.io.IOUtils;" \
+  "private boolean itemFileFitsSizeLimit() throws IOException" \
+  "IOUtils.LINE_SEPARATOR.getBytes(ITEM_FILE_ENCODING)" \
+  "item.getBytes(ITEM_FILE_ENCODING)" \
+  "itemBytes.length > ITEM_FILE_MAX_BYTES - encodedBytes" \
+  "lineSeparator.length > ITEM_FILE_MAX_BYTES - encodedBytes" \
+  "if (!itemFileFitsSizeLimit())"; do
+  require_contains "app/src/main/java/garethpaul/com/fridge/MainActivity.java" \
+    "$preflight_size_contract" \
+    "Fridge preflight size limit must keep contract: $preflight_size_contract"
+done
+if ! awk '
+  /private boolean writeItems\(\)/ { in_write = 1 }
+  /private void showWriteError\(\)/ { in_write = 0 }
+  in_write && /if \(!itemFileFitsSizeLimit\(\)\)/ { preflight = NR }
+  in_write && /FileUtils.writeLines\(temporaryFile, ITEM_FILE_ENCODING, items\);/ { write_temp = NR }
+  in_write && /if \(temporaryFile.length\(\) > ITEM_FILE_MAX_BYTES\)/ { postflight = NR }
+  in_write && /if \(!temporaryFile.renameTo\(todoFile\)\)/ { rename = NR }
+  END {
+    exit !(preflight && write_temp && postflight && rename &&
+      preflight < write_temp && write_temp < postflight && postflight < rename)
+  }
+' "$MAIN_ACTIVITY"; then
+  printf '%s\n' "Fridge must reject oversized serialized items before temporary writes and retain post-write defense." >&2
+  exit 1
+fi
+for preflight_size_doc_contract in \
+  "README.md|preflights the UTF-8 serialized size" \
+  "SECURITY.md|preflight size check runs before temporary output" \
+  "VISION.md|Preflight encoded fridge item storage" \
+  "CHANGES.md|Preflighted encoded fridge item size"; do
+  preflight_size_doc=${preflight_size_doc_contract%%|*}
+  preflight_size_text=${preflight_size_doc_contract#*|}
+  require_contains "$preflight_size_doc" "$preflight_size_text" \
+    "$preflight_size_doc must document preflight item-size enforcement."
+done
+require_contains "docs/plans/2026-06-14-fridge-item-size-preflight.md" \
+  "Status: Completed" \
+  "Fridge item-size preflight plan must be completed."
+require_contains "docs/plans/2026-06-14-fridge-item-size-preflight.md" \
+  "make check" \
+  "Fridge item-size preflight plan must record make check."
+require_contains "docs/plans/2026-06-14-fridge-item-size-preflight.md" \
+  "mutations" \
+  "Fridge item-size preflight plan must record mutation evidence."
 for size_doc_contract in \
   "README.md|1 MiB before parsing or durable replacement" \
   "SECURITY.md|1 MiB item-storage limit" \

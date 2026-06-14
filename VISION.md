@@ -38,6 +38,7 @@ Priority:
 - Keep personal fridge-list contents out of diagnostic logs
 - Keep local fridge-list contents out of Android backups by default
 - Bound encoded fridge item storage to 1 MiB before parsing or replacement
+- Preflight encoded fridge item storage before temporary-file writes
 - Keep GitHub Actions running the root `make check` baseline before review
 - Keep the legacy Gradle runtime behind a checksum-verified generated wrapper
 - Avoid hiding old toolchain requirements or local SDK assumptions
