@@ -13,6 +13,7 @@ STORAGE_LOG_PLAN="$ROOT_DIR/docs/plans/2026-06-13-fridge-storage-log-redaction.m
 SINGLE_LINE_PLAN="$ROOT_DIR/docs/plans/2026-06-13-fridge-single-line-items.md"
 STORAGE_SECURITY_PLAN="$ROOT_DIR/docs/plans/2026-06-13-fridge-storage-security-exceptions.md"
 FILES_DIR_PLAN="$ROOT_DIR/docs/plans/2026-06-13-fridge-files-directory-unavailable.md"
+DEVICE_VERIFICATION_PLAN="$ROOT_DIR/docs/plans/2026-06-14-fridge-device-verification-checklist.md"
 CI_PLAN="$ROOT_DIR/docs/plans/2026-06-10-ci-baseline.md"
 HOSTED_ANDROID_PLAN="$ROOT_DIR/docs/plans/2026-06-12-hosted-android-verification.md"
 WRAPPER_PLAN="$ROOT_DIR/docs/plans/2026-06-12-gradle-wrapper-verification.md"
@@ -111,6 +112,51 @@ require_absent() {
     exit 1
   fi
 }
+
+for required_path in \
+  "$ROOT_DIR/DEVICE_VERIFICATION.md" \
+  "$DEVICE_VERIFICATION_PLAN"; do
+  if [ ! -f "$required_path" ]; then
+    printf '%s\n' "Required file is missing: ${required_path#"$ROOT_DIR/"}" >&2
+    exit 1
+  fi
+done
+
+for device_contract in \
+  'commit SHA and pull request' \
+  'Line separators in input' \
+  'Unavailable files directory' \
+  'Write or rename failure' \
+  'Oversized existing file' \
+  'Process recreation' \
+  'Do not convert `not run` into passing evidence.' \
+  'fridge items, canonical or temporary paths' \
+  'every fridge device and storage row as' \
+  'unexecuted'; do
+  if ! grep -Fq "$device_contract" "$ROOT_DIR/DEVICE_VERIFICATION.md"; then
+    printf '%s\n' "Fridge device checklist must keep contract: $device_contract" >&2
+    exit 1
+  fi
+done
+
+if ! grep -Fq 'DEVICE_VERIFICATION.md' "$README" || \
+   ! grep -Fq 'explicit unexecuted rows' "$README" || \
+   ! grep -Fqi 'Fridge device verification matrix' "$ROOT_DIR/VISION.md" || \
+   ! grep -Fq 'every runtime row explicitly unexecuted' "$ROOT_DIR/CHANGES.md"; then
+  printf '%s\n' 'Repository guidance must document the unexecuted Fridge device matrix.' >&2
+  exit 1
+fi
+
+for plan_contract in \
+  'Status: Completed' \
+  'make check' \
+  'hostile mutations' \
+  'No Android SDK, emulator, physical-tablet, or app-storage scenario was executed'; do
+  if ! grep -Fq "$plan_contract" "$DEVICE_VERIFICATION_PLAN"; then
+    printf '%s\n' "Fridge device plan must keep completion evidence: $plan_contract" >&2
+    exit 1
+  fi
+done
 
 require_contains "build.gradle" "url 'https://repo1.maven.org/maven2'" \
   "Build repositories must use HTTPS Maven Central."

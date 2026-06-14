@@ -42,6 +42,8 @@ Priority:
 - Keep GitHub Actions running the root `make check` baseline before review
 - Keep the legacy Gradle runtime behind a checksum-verified generated wrapper
 - Avoid hiding old toolchain requirements or local SDK assumptions
+- Keep exact-commit tablet storage evidence separate from portable contracts,
+  with unexecuted persistence and corruption scenarios recorded explicitly
 
 Next priorities:
 
@@ -50,6 +52,8 @@ Next priorities:
 - Add tests around list item creation, persistence, and deletion flows
 - Clarify emulator or tablet verification steps
 - Reduce obsolete dependency assumptions when the app is actively revived
+- Execute the Fridge device verification matrix with synthetic household data
+  and privacy-safe evidence
 
 Contribution rules:
 
