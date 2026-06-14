@@ -157,6 +157,7 @@ for pattern in \
   "getFilesDir()" \
   'private static final String ITEM_FILE_ENCODING = "UTF-8"' \
   'private static final String ITEM_TEMP_FILE_NAME = "food.txt.tmp"' \
+  'private static final long ITEM_FILE_MAX_BYTES = 1024L * 1024L' \
   "FileUtils.readLines(" \
   "ITEM_FILE_ENCODING));" \
   "FileUtils.writeLines(temporaryFile, ITEM_FILE_ENCODING, items);" \
@@ -181,6 +182,49 @@ for pattern in \
     exit 1
   fi
 done
+
+if [ "$(grep -Fc "if (todoFile.length() > ITEM_FILE_MAX_BYTES)" "$MAIN_ACTIVITY")" -ne 1 ] || \
+   [ "$(grep -Fc "if (temporaryFile.length() > ITEM_FILE_MAX_BYTES)" "$MAIN_ACTIVITY")" -ne 1 ]; then
+  printf '%s\n' "Fridge read and write paths must both enforce the item file size limit." >&2
+  exit 1
+fi
+if ! awk '
+  /private void readItems\(\)/ { in_read = 1 }
+  /private boolean writeItems\(\)/ { in_read = 0; in_write = 1 }
+  /private void showWriteError\(\)/ { in_write = 0 }
+  in_read && /if \(todoFile.length\(\) > ITEM_FILE_MAX_BYTES\)/ { read_limit = NR }
+  in_read && /FileUtils.readLines\(/ { read_parse = NR }
+  in_write && /FileUtils.writeLines\(temporaryFile, ITEM_FILE_ENCODING, items\);/ { write_temp = NR }
+  in_write && /if \(temporaryFile.length\(\) > ITEM_FILE_MAX_BYTES\)/ { write_limit = NR }
+  in_write && /if \(!temporaryFile.renameTo\(todoFile\)\)/ { write_rename = NR }
+  END {
+    exit !(read_limit && read_parse && read_limit < read_parse &&
+      write_temp && write_limit && write_rename &&
+      write_temp < write_limit && write_limit < write_rename)
+  }
+' "$MAIN_ACTIVITY"; then
+  printf '%s\n' "Fridge item size checks must precede parsing and durable replacement." >&2
+  exit 1
+fi
+for size_doc_contract in \
+  "README.md|1 MiB before parsing or durable replacement" \
+  "SECURITY.md|1 MiB item-storage limit" \
+  "VISION.md|Bound encoded fridge item storage to 1 MiB" \
+  "CHANGES.md|1 MiB item-file limit"; do
+  size_doc=${size_doc_contract%%|*}
+  size_text=${size_doc_contract#*|}
+  require_contains "$size_doc" "$size_text" \
+    "$size_doc must document the fridge item file size boundary."
+done
+require_contains "docs/plans/2026-06-14-fridge-item-file-size-limit.md" \
+  "Status: Completed" \
+  "Fridge item file size plan must be completed."
+require_contains "docs/plans/2026-06-14-fridge-item-file-size-limit.md" \
+  "make check" \
+  "Fridge item file size plan must record make check verification."
+require_contains "docs/plans/2026-06-14-fridge-item-file-size-limit.md" \
+  "mutations" \
+  "Fridge item file size plan must record mutation evidence."
 
 NORMALIZED_ITEM_HELPER=$(sed -n \
   '/private String normalizedItemText(EditText itemInput)/,/^    }/p' \

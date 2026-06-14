@@ -32,6 +32,7 @@ public class MainActivity extends Activity {
     private static final String DISPLAY_DATE_PATTERN = "M-d-yyyy";
     private static final String ITEM_FILE_ENCODING = "UTF-8";
     private static final String ITEM_TEMP_FILE_NAME = "food.txt.tmp";
+    private static final long ITEM_FILE_MAX_BYTES = 1024L * 1024L;
 
     private ArrayList<String> items;
     private ArrayAdapter<String> itemsAdapter;
@@ -186,6 +187,9 @@ public class MainActivity extends Activity {
                 itemStorageAvailable = true;
                 return;
             }
+            if (todoFile.length() > ITEM_FILE_MAX_BYTES) {
+                throw new IOException("Fridge item file is too large");
+            }
 
             items = new ArrayList<String>(FileUtils.readLines(
                     todoFile,
@@ -214,6 +218,9 @@ public class MainActivity extends Activity {
         boolean written = false;
         try {
             FileUtils.writeLines(temporaryFile, ITEM_FILE_ENCODING, items);
+            if (temporaryFile.length() > ITEM_FILE_MAX_BYTES) {
+                throw new IOException("Fridge item file is too large");
+            }
             if (!temporaryFile.renameTo(todoFile)) {
                 throw new IOException("Unable to replace fridge item file");
             }

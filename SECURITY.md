@@ -47,6 +47,8 @@ Helpful reports include:
   and rollback boundaries instead of crashing the activity.
 - An unavailable app files directory is rejected before canonical or temporary
   storage files are constructed.
+- A 1 MiB item-storage limit rejects oversized existing files before parsing
+  and oversized temporary output before replacing the durable list.
 - Line separators in fridge item input are normalized before line-oriented
   local persistence so one submission cannot create extra entries on reload.
 
