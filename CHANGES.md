@@ -1,5 +1,10 @@
 # Changes
 
+## 2026-06-14
+
+- Added a 1 MiB item-file limit before full-file parsing and before temporary
+  output can replace the durable fridge list.
+
 ## 2026-06-13
 
 - Routed storage permission failures through the existing fail-closed read and

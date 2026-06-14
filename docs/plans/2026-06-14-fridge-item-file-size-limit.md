@@ -1,6 +1,6 @@
 # Bound Fridge Item Storage Size
 
-Status: Planned
+Status: Completed
 
 ## Context
 
@@ -56,11 +56,14 @@ Document the fail-closed storage-size boundary and retained rollback behavior.
 
 ## Verification
 
-- Run root and external-working-directory `make check`.
-- Reject focused mutations that remove either limit check, move checks after
-  parsing or rename, weaken documentation, or leave this plan incomplete.
-- Audit the exact diff, generated artifacts, credentials, conflict markers,
-  and whitespace before committing implementation.
+Completed on 2026-06-14:
+
+- Root and external-working-directory `make check` both passed the portable
+  fridge baseline; Gradle lint, tests, and build were truthfully skipped because
+  no Android SDK was configured.
+- Six focused mutations were rejected when they removed either size check,
+  moved checks after parsing or rename, weakened security documentation, or
+  reopened this plan.
 
 ## Risks
 

@@ -105,6 +105,9 @@ the SDK is unavailable locally, rely on the hosted matching toolchain.
   device default charset.
 - Fridge item writes use a same-directory temporary file and rename so a
   failed write does not truncate the existing list in place.
+- Fridge item storage is capped at 1 MiB before parsing or durable replacement,
+  preventing corrupted input or oversized output from becoming unbounded UI
+  thread work.
 - Failed item writes roll back the visible list to its last durable state and
   show a localized warning without exposing item contents.
 - An unreadable existing item file shows a localized warning and disables
