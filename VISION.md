@@ -47,6 +47,7 @@ Priority:
 - Keep exact-commit tablet storage evidence separate from portable contracts,
   with unexecuted persistence and corruption scenarios recorded explicitly
 - Test list creation, deletion, and persistence rollback as pure Java state transitions
+- Persistence exceptions restore the exact fridge list before propagation.
 
 Next priorities:
 

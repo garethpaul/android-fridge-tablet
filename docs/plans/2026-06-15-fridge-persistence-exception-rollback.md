@@ -1,7 +1,7 @@
 ---
 title: Fridge Persistence Exception Rollback
 type: reliability
-status: in_progress
+status: completed
 date: 2026-06-15
 ---
 
@@ -78,7 +78,20 @@ propagation.
 
 ## Completion Evidence
 
-Pending implementation and validation.
+- Added symmetric `catch (RuntimeException error)` rollback blocks for add and
+  remove persistence, restoring exact list state before rethrowing the same
+  exception object.
+- Direct Java 7-compatible JUnit execution passed all 8
+  `ItemListTransactionTest` cases using the cached JUnit 4.13.2 toolchain.
+- Six isolated hostile mutations were rejected for missing add rollback,
+  missing positional remove restoration, replaced exception identity, missing
+  regression evidence, missing guidance, and incomplete plan status.
+- The SDK-free baseline and repository-root and external-directory `make check`
+  gates passed; Android SDK-dependent lint, Gradle tests, and APK assembly were
+  skipped explicitly because no SDK is configured on this host.
+- Exact-path diff, generated-artifact, conflict-marker, whitespace, dependency
+  drift, and credential-shaped-addition audits passed.
+- No emulator, physical tablet, or live persistence scenario was executed.
 
 ## Risks And Mitigations
 

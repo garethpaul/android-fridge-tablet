@@ -20,6 +20,7 @@ ITEM_TRANSACTION_TEST="$ROOT_DIR/app/src/test/java/garethpaul/com/fridge/ItemFil
 LIST_TRANSACTION="$ROOT_DIR/app/src/main/java/garethpaul/com/fridge/ItemListTransaction.java"
 LIST_TRANSACTION_TEST="$ROOT_DIR/app/src/test/java/garethpaul/com/fridge/ItemListTransactionTest.java"
 LIST_TRANSACTION_PLAN="$ROOT_DIR/docs/plans/2026-06-15-fridge-list-persistence-transaction-tests.md"
+LIST_EXCEPTION_PLAN="$ROOT_DIR/docs/plans/2026-06-15-fridge-persistence-exception-rollback.md"
 APP_BUILD="$ROOT_DIR/app/build.gradle"
 CI_PLAN="$ROOT_DIR/docs/plans/2026-06-10-ci-baseline.md"
 HOSTED_ANDROID_PLAN="$ROOT_DIR/docs/plans/2026-06-12-hosted-android-verification.md"
@@ -924,6 +925,11 @@ for list_transaction_file in "$LIST_TRANSACTION" "$LIST_TRANSACTION_TEST" "$LIST
   fi
 done
 
+if [ ! -f "$LIST_EXCEPTION_PLAN" ]; then
+  printf '%s\n' "Required persistence exception rollback plan is missing." >&2
+  exit 1
+fi
+
 for list_transaction_contract in \
   "enum Result" \
   "COMMITTED" \
@@ -939,6 +945,14 @@ for list_transaction_contract in \
     exit 1
   fi
 done
+
+if [ "$(grep -Fc "catch (RuntimeException error)" "$LIST_TRANSACTION")" -ne 2 ] || \
+   [ "$(grep -Fc "throw error;" "$LIST_TRANSACTION")" -ne 2 ] || \
+   [ "$(grep -Fc "items.remove(addedPosition);" "$LIST_TRANSACTION")" -ne 2 ] || \
+   [ "$(grep -Fc "items.add(position, removedItem);" "$LIST_TRANSACTION")" -ne 2 ]; then
+  printf '%s\n' "List transactions must restore state before rethrowing both persistence exceptions." >&2
+  exit 1
+fi
 
 add_line=$(grep -nF "items.add(item);" "$LIST_TRANSACTION" | head -n 1 | cut -d: -f1)
 add_persist_line=$(grep -nF "if (persistence.persist())" "$LIST_TRANSACTION" | head -n 1 | cut -d: -f1)
@@ -971,9 +985,31 @@ for list_test_contract in \
   "restoresRemovedItemAtOriginalPositionWhenPersistenceFails" \
   "supportsRemovingFirstAndLastItems" \
   "ignoresInvalidRemovalPositionsWithoutPersisting" \
+  "restoresListBeforeRethrowingAddPersistenceException" \
+  "restoresRemovedItemBeforeRethrowingPersistenceException" \
+  "assertSame(expected, actual);" \
   "assertEquals(0, persistence.calls)"; do
   if ! grep -Fq "$list_test_contract" "$LIST_TRANSACTION_TEST"; then
     printf '%s\n' "ItemListTransactionTest must keep case: $list_test_contract" >&2
+    exit 1
+  fi
+done
+
+exception_guidance="Persistence exceptions restore the exact fridge list before propagation."
+for exception_guidance_path in README.md SECURITY.md VISION.md AGENTS.md CHANGES.md; do
+  if ! grep -Fq "$exception_guidance" "$ROOT_DIR/$exception_guidance_path"; then
+    printf '%s\n' "$exception_guidance_path must document persistence exception rollback." >&2
+    exit 1
+  fi
+done
+
+for exception_plan_contract in \
+  "status: completed" \
+  "catch (RuntimeException error)" \
+  "make check" \
+  "hostile mutations"; do
+  if ! grep -Fq "$exception_plan_contract" "$LIST_EXCEPTION_PLAN"; then
+    printf '%s\n' "Persistence exception rollback plan must keep completion evidence: $exception_plan_contract" >&2
     exit 1
   fi
 done

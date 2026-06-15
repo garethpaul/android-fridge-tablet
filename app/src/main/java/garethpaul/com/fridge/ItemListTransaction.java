@@ -16,8 +16,13 @@ final class ItemListTransaction {
     Result add(List<String> items, String item, Persistence persistence) {
         int addedPosition = items.size();
         items.add(item);
-        if (persistence.persist()) {
-            return Result.COMMITTED;
+        try {
+            if (persistence.persist()) {
+                return Result.COMMITTED;
+            }
+        } catch (RuntimeException error) {
+            items.remove(addedPosition);
+            throw error;
         }
 
         items.remove(addedPosition);
@@ -30,8 +35,13 @@ final class ItemListTransaction {
         }
 
         String removedItem = items.remove(position);
-        if (persistence.persist()) {
-            return Result.COMMITTED;
+        try {
+            if (persistence.persist()) {
+                return Result.COMMITTED;
+            }
+        } catch (RuntimeException error) {
+            items.add(position, removedItem);
+            throw error;
         }
 
         items.add(position, removedItem);

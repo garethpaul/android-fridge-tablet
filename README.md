@@ -119,6 +119,7 @@ and explicit unexecuted rows.
   show a localized warning without exposing item contents. Pure Java
   behavioral unit tests cover successful and failed item creation and deletion
   while preserving exact list order.
+- Persistence exceptions restore the exact fridge list before propagation.
 - An unreadable existing item file shows a localized warning and disables
   changes for that activity session so later writes cannot replace data that
   failed to load. A missing file remains a normal empty first-launch state.

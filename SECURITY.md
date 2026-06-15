@@ -45,6 +45,7 @@ Helpful reports include:
   categories without recording exception messages, stack traces, or internal
   paths. Storage permission failures remain inside those reviewed fail-closed
   and rollback boundaries instead of crashing the activity.
+- Persistence exceptions restore the exact fridge list before propagation.
 - An unavailable app files directory is rejected before canonical or temporary
   storage files are constructed.
 - A 1 MiB item-storage limit rejects oversized existing files before parsing
