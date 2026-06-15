@@ -1,5 +1,12 @@
 # Changes
 
+## 2026-06-15
+
+- Added behavioral list transaction tests for successful and failed item
+  creation and deletion, including exact-order rollback and invalid positions.
+- Routed the activity's add/delete persistence transitions through the tested
+  pure Java transaction without changing storage or UI error behavior.
+
 ## 2026-06-14
 
 - Replaced platform-dependent direct item-file replacement with a tested

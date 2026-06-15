@@ -46,12 +46,12 @@ Priority:
 - Avoid hiding old toolchain requirements or local SDK assumptions
 - Keep exact-commit tablet storage evidence separate from portable contracts,
   with unexecuted persistence and corruption scenarios recorded explicitly
+- Test list creation, deletion, and persistence rollback as pure Java state transitions
 
 Next priorities:
 
 - Evaluate Gradle runtime, SDK, plugin, storage, and date modernization together
   in a dedicated compatibility pass; wrapper bootstrap hardening is separate
-- Add tests around list item creation, persistence, and deletion flows
 - Clarify emulator or tablet verification steps
 - Reduce obsolete dependency assumptions when the app is actively revived
 - Execute the Fridge device verification matrix with synthetic household data

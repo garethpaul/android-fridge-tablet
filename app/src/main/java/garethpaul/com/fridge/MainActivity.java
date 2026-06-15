@@ -41,6 +41,7 @@ public class MainActivity extends Activity {
     private ListView lvItems;
     private TextView dateTime;
     private boolean itemStorageAvailable;
+    private final ItemListTransaction itemListTransaction = new ItemListTransaction();
 
     private String textFileName = "food.txt";
 
@@ -105,16 +106,17 @@ public class MainActivity extends Activity {
                     @Override
                     public boolean onItemLongClick(AdapterView<?> adapter,
                                                    View item, int pos, long id) {
-                        if (pos < 0 || pos >= items.size()) {
-                            return true;
-                        }
-
-                        // Remove the item within array at position
-                        String removedItem = items.remove(pos);
-                        // Refresh the adapter
-                        itemsAdapter.notifyDataSetChanged();
-                        if (!writeItems()) {
-                            items.add(pos, removedItem);
+                        ItemListTransaction.Result result = itemListTransaction.remove(
+                                items,
+                                pos,
+                                new ItemListTransaction.Persistence() {
+                                    @Override
+                                    public boolean persist() {
+                                        itemsAdapter.notifyDataSetChanged();
+                                        return writeItems();
+                                    }
+                                });
+                        if (result == ItemListTransaction.Result.ROLLED_BACK) {
                             itemsAdapter.notifyDataSetChanged();
                             showWriteError();
                         }
@@ -138,13 +140,17 @@ public class MainActivity extends Activity {
             return;
         }
 
-        // Add the item to the ListView
-        int addedPosition = items.size();
-        items.add(itemText);
-        itemsAdapter.notifyDataSetChanged();
-
-        if (!writeItems()) {
-            items.remove(addedPosition);
+        ItemListTransaction.Result result = itemListTransaction.add(
+                items,
+                itemText,
+                new ItemListTransaction.Persistence() {
+                    @Override
+                    public boolean persist() {
+                        itemsAdapter.notifyDataSetChanged();
+                        return writeItems();
+                    }
+                });
+        if (result == ItemListTransaction.Result.ROLLED_BACK) {
             itemsAdapter.notifyDataSetChanged();
             showWriteError();
             return;

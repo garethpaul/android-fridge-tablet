@@ -17,6 +17,9 @@ DEVICE_VERIFICATION_PLAN="$ROOT_DIR/docs/plans/2026-06-14-fridge-device-verifica
 ATOMIC_REPLACEMENT_PLAN="$ROOT_DIR/docs/plans/2026-06-14-atomic-item-file-replacement.md"
 ITEM_TRANSACTION="$ROOT_DIR/app/src/main/java/garethpaul/com/fridge/ItemFileTransaction.java"
 ITEM_TRANSACTION_TEST="$ROOT_DIR/app/src/test/java/garethpaul/com/fridge/ItemFileTransactionTest.java"
+LIST_TRANSACTION="$ROOT_DIR/app/src/main/java/garethpaul/com/fridge/ItemListTransaction.java"
+LIST_TRANSACTION_TEST="$ROOT_DIR/app/src/test/java/garethpaul/com/fridge/ItemListTransactionTest.java"
+LIST_TRANSACTION_PLAN="$ROOT_DIR/docs/plans/2026-06-15-fridge-list-persistence-transaction-tests.md"
 APP_BUILD="$ROOT_DIR/app/build.gradle"
 CI_PLAN="$ROOT_DIR/docs/plans/2026-06-10-ci-baseline.md"
 HOSTED_ANDROID_PLAN="$ROOT_DIR/docs/plans/2026-06-12-hosted-android-verification.md"
@@ -221,12 +224,12 @@ for pattern in \
   "if (lvItems != null)" \
   "if (lvItems == null)" \
   "if (dateTime != null)" \
-  "if (pos < 0 || pos >= items.size())" \
+  "itemListTransaction.remove(" \
   "if (menu == null)" \
   "if (item == null)" \
   "private String normalizedItemText(EditText itemInput)" \
   "if (itemInput == null || itemInput.getText() == null)" \
-  "items.add(itemText);"; do
+  "itemListTransaction.add("; do
   if ! grep -Fq "$pattern" "$MAIN_ACTIVITY"; then
     printf '%s\n' "Missing source baseline pattern: $pattern" >&2
     exit 1
@@ -341,9 +344,8 @@ for write_result_contract in \
   "boolean written = false;" \
   "written = true;" \
   "return written;" \
-  "if (!writeItems())" \
-  "items.add(pos, removedItem);" \
-  "items.remove(addedPosition);" \
+  "ItemListTransaction.Result.ROLLED_BACK" \
+  "return writeItems();" \
   "showWriteError();"; do
   if ! grep -Fq "$write_result_contract" "$MAIN_ACTIVITY"; then
     printf '%s\n' "Fridge write-result handling must keep contract: $write_result_contract" >&2
@@ -911,6 +913,87 @@ for transaction_plan_contract in \
   "No emulator storage corruption or lifecycle scenario was executed"; do
   if ! grep -Fqi "$transaction_plan_contract" "$ATOMIC_REPLACEMENT_PLAN"; then
     printf '%s\n' "Atomic replacement plan must keep completion evidence: $transaction_plan_contract" >&2
+    exit 1
+  fi
+done
+
+for list_transaction_file in "$LIST_TRANSACTION" "$LIST_TRANSACTION_TEST" "$LIST_TRANSACTION_PLAN"; do
+  if [ ! -f "$list_transaction_file" ]; then
+    printf '%s\n' "Required list transaction file is missing: ${list_transaction_file#"$ROOT_DIR/"}" >&2
+    exit 1
+  fi
+done
+
+for list_transaction_contract in \
+  "enum Result" \
+  "COMMITTED" \
+  "ROLLED_BACK" \
+  "UNCHANGED" \
+  "items.add(item);" \
+  "items.remove(addedPosition);" \
+  "String removedItem = items.remove(position);" \
+  "items.add(position, removedItem);" \
+  "if (position < 0 || position >= items.size())"; do
+  if ! grep -Fq "$list_transaction_contract" "$LIST_TRANSACTION"; then
+    printf '%s\n' "ItemListTransaction must keep contract: $list_transaction_contract" >&2
+    exit 1
+  fi
+done
+
+add_line=$(grep -nF "items.add(item);" "$LIST_TRANSACTION" | head -n 1 | cut -d: -f1)
+add_persist_line=$(grep -nF "if (persistence.persist())" "$LIST_TRANSACTION" | head -n 1 | cut -d: -f1)
+add_rollback_line=$(grep -nF "items.remove(addedPosition);" "$LIST_TRANSACTION" | head -n 1 | cut -d: -f1)
+remove_line=$(grep -nF "String removedItem = items.remove(position);" "$LIST_TRANSACTION" | head -n 1 | cut -d: -f1)
+remove_persist_line=$(grep -nF "if (persistence.persist())" "$LIST_TRANSACTION" | tail -n 1 | cut -d: -f1)
+remove_rollback_line=$(grep -nF "items.add(position, removedItem);" "$LIST_TRANSACTION" | head -n 1 | cut -d: -f1)
+if [ "$add_line" -ge "$add_persist_line" ] || [ "$add_persist_line" -ge "$add_rollback_line" ] || \
+   [ "$remove_line" -ge "$remove_persist_line" ] || [ "$remove_persist_line" -ge "$remove_rollback_line" ]; then
+  printf '%s\n' "List transactions must mutate before persistence and roll back only after failure." >&2
+  exit 1
+fi
+
+for list_activity_contract in \
+  "private final ItemListTransaction itemListTransaction" \
+  "itemListTransaction.add(" \
+  "itemListTransaction.remove(" \
+  "new ItemListTransaction.Persistence()" \
+  "if (result == ItemListTransaction.Result.ROLLED_BACK)"; do
+  if ! grep -Fq "$list_activity_contract" "$MAIN_ACTIVITY"; then
+    printf '%s\n' "MainActivity must keep list transaction integration: $list_activity_contract" >&2
+    exit 1
+  fi
+done
+
+for list_test_contract in \
+  "keepsAddedItemWhenPersistenceSucceeds" \
+  "restoresListWhenAddedItemCannotPersist" \
+  "keepsRemovalWhenPersistenceSucceeds" \
+  "restoresRemovedItemAtOriginalPositionWhenPersistenceFails" \
+  "supportsRemovingFirstAndLastItems" \
+  "ignoresInvalidRemovalPositionsWithoutPersisting" \
+  "assertEquals(0, persistence.calls)"; do
+  if ! grep -Fq "$list_test_contract" "$LIST_TRANSACTION_TEST"; then
+    printf '%s\n' "ItemListTransactionTest must keep case: $list_test_contract" >&2
+    exit 1
+  fi
+done
+
+if ! tr '\n' ' ' < "$README" | tr -s '[:space:]' ' ' | \
+     grep -Fq "behavioral unit tests cover successful and failed item creation and deletion" || \
+   ! grep -Fq "Test list creation, deletion, and persistence rollback as pure Java state transitions" "$ROOT_DIR/VISION.md" || \
+   ! grep -Fq "behavioral list transaction tests" "$ROOT_DIR/CHANGES.md"; then
+  printf '%s\n' "Repository guidance must document behavioral list transaction coverage." >&2
+  exit 1
+fi
+
+for list_plan_contract in \
+  'Status: Completed' \
+  'focused `ItemListTransactionTest`' \
+  'repository and external-directory `make check`' \
+  'isolated hostile mutations' \
+  'generated-artifact and likely-secret audits'; do
+  if ! grep -Fq "$list_plan_contract" "$LIST_TRANSACTION_PLAN"; then
+    printf '%s\n' "Fridge list transaction plan must keep completion evidence: $list_plan_contract" >&2
     exit 1
   fi
 done
