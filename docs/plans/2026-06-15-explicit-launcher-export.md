@@ -1,7 +1,7 @@
 ---
 title: Fridge Tablet Explicit Launcher Export Boundary
 type: security
-status: planned
+status: completed
 date: 2026-06-15
 ---
 
@@ -83,3 +83,17 @@ Record the intentional boundary, validation, and remaining platform limits.
 - New components, deep links, permissions, or intent filters.
 - List transaction behavior, file replacement, backup recovery, encoding,
   storage limits, adapter reconciliation, or UI flows.
+
+## Completion Evidence
+
+- POSIX syntax and the focused Fridge baseline checker passed.
+- repository and external-directory `make check` passed under Java 8 with the
+  configured Android SDK; lint, debug/release unit tests, and debug assembly
+  succeeded. Android lint reported zero issues for both variants.
+- Seven isolated hostile mutations were rejected for missing, false,
+  application-owned, filter-detached, same-line duplicate, missing-guidance,
+  and incomplete-plan variants.
+- The exact eight-path diff, generated-artifact cleanup, file modes,
+  whitespace, conflict markers, dependency/workflow drift, and
+  credential-shaped additions were audited before commit.
+- No emulator, physical-tablet, or real storage-failure scenario was executed.

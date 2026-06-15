@@ -17,6 +17,8 @@ The current focus is:
 
 Priority:
 
+- Keep the explicit launcher export boundary limited to `.MainActivity` and
+  keep unrelated Android components private
 - Preserve the documented Gradle, Android plugin, and SDK baseline
 - Keep the on-device fridge-list workflow understandable
 - Maintain SDK-free baseline verification

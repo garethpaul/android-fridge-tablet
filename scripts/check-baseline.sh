@@ -21,6 +21,7 @@ LIST_TRANSACTION="$ROOT_DIR/app/src/main/java/garethpaul/com/fridge/ItemListTran
 LIST_TRANSACTION_TEST="$ROOT_DIR/app/src/test/java/garethpaul/com/fridge/ItemListTransactionTest.java"
 LIST_TRANSACTION_PLAN="$ROOT_DIR/docs/plans/2026-06-15-fridge-list-persistence-transaction-tests.md"
 LIST_EXCEPTION_PLAN="$ROOT_DIR/docs/plans/2026-06-15-fridge-persistence-exception-rollback.md"
+LAUNCHER_EXPORT_PLAN="$ROOT_DIR/docs/plans/2026-06-15-explicit-launcher-export.md"
 APP_BUILD="$ROOT_DIR/app/build.gradle"
 CI_PLAN="$ROOT_DIR/docs/plans/2026-06-10-ci-baseline.md"
 HOSTED_ANDROID_PLAN="$ROOT_DIR/docs/plans/2026-06-12-hosted-android-verification.md"
@@ -198,6 +199,66 @@ require_contains "app/src/main/AndroidManifest.xml" \
 require_absent "app/src/main/AndroidManifest.xml" \
   'android:allowBackup="true"' \
   "Fridge app must not allow Android backups."
+
+MANIFEST="$ROOT_DIR/app/src/main/AndroidManifest.xml"
+exported_count=$(awk '
+  {
+    line = $0
+    while (match(line, /android:exported=/)) {
+      count++
+      line = substr(line, RSTART + RLENGTH)
+    }
+  }
+  END { print count + 0 }
+' "$MANIFEST")
+if [ "$exported_count" -ne 1 ]; then
+  printf '%s\n' "Fridge app must declare exactly one explicit component export boundary." >&2
+  exit 1
+fi
+if ! awk '
+  /<activity([[:space:]>]|$)/ {
+    in_activity = 1
+    name = 0
+    exported = 0
+    main_action = 0
+    launcher_category = 0
+  }
+  in_activity && /android:name="\.MainActivity"/ { name = 1 }
+  in_activity && /android:exported="true"/ { exported++ }
+  in_activity && /android.intent.action.MAIN/ { main_action = 1 }
+  in_activity && /android.intent.category.LAUNCHER/ { launcher_category = 1 }
+  in_activity && /<\/activity>/ {
+    if (name && exported == 1 && main_action && launcher_category) {
+      valid_launcher++
+    }
+    in_activity = 0
+  }
+  END { exit !(valid_launcher == 1) }
+' "$MANIFEST"; then
+  printf '%s\n' "Fridge launcher activity must be explicitly exported with its MAIN/LAUNCHER filter." >&2
+  exit 1
+fi
+require_absent "app/src/main/AndroidManifest.xml" \
+  'android:exported="false"' \
+  "Fridge launcher activity must remain externally reachable."
+
+for launcher_export_document in \
+  "$ROOT_DIR/AGENTS.md" "$README" "$SECURITY" "$ROOT_DIR/VISION.md" "$ROOT_DIR/CHANGES.md"; do
+  if ! grep -Fq "explicit launcher export boundary" "$launcher_export_document"; then
+    printf '%s\n' "$launcher_export_document must document the explicit launcher export boundary." >&2
+    exit 1
+  fi
+done
+for launcher_export_plan_contract in \
+  "status: completed" \
+  'android:exported="true"' \
+  'repository and external-directory `make check` passed' \
+  "hostile mutations were rejected"; do
+  if ! grep -Fq "$launcher_export_plan_contract" "$LAUNCHER_EXPORT_PLAN"; then
+    printf '%s\n' "Fridge launcher export plan must preserve completion evidence: $launcher_export_plan_contract" >&2
+    exit 1
+  fi
+done
 
 if grep -Fq "today.month + \"-\"" "$MAIN_ACTIVITY"; then
   printf '%s\n' "Date display must not use zero-based Time.month." >&2

@@ -2,6 +2,11 @@
 
 ## 2026-06-15
 
+- Added an explicit launcher export boundary for the sole `MAIN`/`LAUNCHER`
+  activity and a structural manifest contract.
+
+## 2026-06-15
+
 - Persistence exceptions restore the exact fridge list before propagation.
 - Added behavioral list transaction tests for successful and failed item
   creation and deletion, including exact-order rollback and invalid positions.

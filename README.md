@@ -143,6 +143,8 @@ and explicit unexecuted rows.
 
 ## Security and Privacy Notes
 
+- The explicit launcher export boundary is limited to `.MainActivity` and its
+  existing `MAIN`/`LAUNCHER` intent filter.
 - Review changes touching network requests, sockets, or service endpoints; examples from the scan include app/src/androidTest/java/garethpaul/com/fridge/ApplicationTest.java, app/src/main/AndroidManifest.xml, app/src/main/res/layout/activity_main.xml, app/src/main/res/menu/menu_main.xml, and 4 more.
 - Review changes touching mobile permissions or privacy-sensitive device data; examples from the scan include app/src/main/AndroidManifest.xml, gradlew.
 - Review changes touching file, media, JSON, XML, CSV, OCR, or data parsing; examples from the scan include app/lint.xml, app/src/main/AndroidManifest.xml, app/src/main/java/garethpaul/com/fridge/MainActivity.java, app/src/main/res/values/color.xml, and 2 more.

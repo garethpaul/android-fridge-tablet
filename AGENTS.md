@@ -46,6 +46,8 @@
 ## Safety and gotchas
 
 - No required secret or credential file was identified in the repository scan. If you add integrations later, keep secrets out of git.
+- Keep the explicit launcher export boundary on `.MainActivity`, which owns the
+  sole `MAIN`/`LAUNCHER` filter; do not export unrelated components.
 - This legacy Android baseline pins Android build-tools 24.0.3 and preserves target SDK 21.
 - Fridge items are stored in the app's internal files directory, so the app does not request external storage permissions.
 - An unavailable app files directory must be rejected before constructing
