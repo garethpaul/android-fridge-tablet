@@ -116,7 +116,9 @@ and explicit unexecuted rows.
 - Fridge preflights the UTF-8 serialized size before opening temporary output
   and retains the post-write size check before durable replacement.
 - Failed item writes roll back the visible list to its last durable state and
-  show a localized warning without exposing item contents.
+  show a localized warning without exposing item contents. Pure Java
+  behavioral unit tests cover successful and failed item creation and deletion
+  while preserving exact list order.
 - An unreadable existing item file shows a localized warning and disables
   changes for that activity session so later writes cannot replace data that
   failed to load. A missing file remains a normal empty first-launch state.
@@ -150,6 +152,8 @@ and explicit unexecuted rows.
   tablet/storage evidence matrix and runtime non-claims.
 - See `docs/plans/2026-06-14-atomic-item-file-replacement.md` for the tested
   backup, installation, rollback, and startup recovery contract.
+- See `docs/plans/2026-06-15-fridge-list-persistence-transaction-tests.md` for
+  behavioral add/delete persistence and rollback coverage.
 
 - This looks like a legacy Android project or sample. Expect Android SDK, Gradle, and support-library versions to matter.
 - The current baseline keeps Gradle 2.2.1, Android Gradle Plugin 1.1.0, compile SDK 22, target SDK 21, and Android build-tools 24.0.3.

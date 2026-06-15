@@ -1,6 +1,6 @@
 # Fridge List Persistence Transaction Tests
 
-Status: Planned
+Status: Completed
 
 ## Context
 
@@ -86,13 +86,19 @@ while Android view wiring remains a platform-runtime boundary.
   pure JVM tests.
 - Keep this work stacked on the atomic replacement pull request.
 
-## Verification To Complete
+## Completed Verification
 
-- Run focused `ItemListTransactionTest`, complete Gradle unit tasks, Android
-  lint, debug assembly, repository `make check`, and external-directory
-  `make check` with explicit timeouts.
-- Reject isolated mutations for add rollback, delete rollback, invalid-position
-  writer suppression, activity delegation, tests, guidance, and plan status.
-- Run exact diff, generated-artifact, likely-secret, and whitespace audits.
-- Take one bounded exact-head hosted snapshot after push without polling.
-
+- The focused `ItemListTransactionTest` passed all six cases through the pinned
+  Gradle and Android plugin stack.
+- Complete debug and release unit tasks passed, Android lint reported zero
+  issues for both variants, and debug APK assembly succeeded with the installed
+  Android SDK.
+- The repository and external-directory `make check` gates passed with explicit
+  SDK environment variables and bounded timeouts.
+- Eight isolated hostile mutations were rejected for add rollback, delete
+  rollback, invalid-position writer suppression, mutation/persistence ordering,
+  activity delegation, test coverage, guidance, and plan status.
+- Exact diff, whitespace, generated-artifact and likely-secret audits passed for
+  the intended paths after removing only explicit reproducible build output.
+- Hosted evidence is recorded separately from one bounded exact-head snapshot
+  after push; no emulator or physical-tablet behavior is claimed by this plan.
