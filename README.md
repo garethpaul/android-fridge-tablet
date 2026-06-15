@@ -130,6 +130,9 @@ and explicit unexecuted rows.
   rollback paths as I/O failures instead of escaping the activity.
 - An unavailable app files directory fails reads closed and routes writes
   through the existing visible rollback path.
+- Item-file replacement preserves the last-known-good list in a same-directory
+  backup until the new bounded temporary file is installed. Failed installation
+  restores the backup, and failed rollback retains both recoverable copies.
 - Android backup is disabled in the checked-in manifest so local fridge-list
   contents stay out of platform backups by default.
 - [`docs/plans/2026-06-13-fridge-storage-log-redaction.md`](docs/plans/2026-06-13-fridge-storage-log-redaction.md)
@@ -145,6 +148,8 @@ and explicit unexecuted rows.
 
 - See `docs/plans/2026-06-14-fridge-device-verification-checklist.md` for the
   tablet/storage evidence matrix and runtime non-claims.
+- See `docs/plans/2026-06-14-atomic-item-file-replacement.md` for the tested
+  backup, installation, rollback, and startup recovery contract.
 
 - This looks like a legacy Android project or sample. Expect Android SDK, Gradle, and support-library versions to matter.
 - The current baseline keeps Gradle 2.2.1, Android Gradle Plugin 1.1.0, compile SDK 22, target SDK 21, and Android build-tools 24.0.3.

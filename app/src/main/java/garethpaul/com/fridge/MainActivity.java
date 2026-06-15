@@ -33,6 +33,7 @@ public class MainActivity extends Activity {
     private static final String DISPLAY_DATE_PATTERN = "M-d-yyyy";
     private static final String ITEM_FILE_ENCODING = "UTF-8";
     private static final String ITEM_TEMP_FILE_NAME = "food.txt.tmp";
+    private static final String ITEM_BACKUP_FILE_NAME = "food.txt.bak";
     private static final long ITEM_FILE_MAX_BYTES = 1024L * 1024L;
 
     private ArrayList<String> items;
@@ -182,8 +183,12 @@ public class MainActivity extends Activity {
             return;
         }
         File todoFile = new File(filesDir, textFileName);
+        File backupFile = new File(filesDir, ITEM_BACKUP_FILE_NAME);
         items = new ArrayList<String>();
         try {
+            if (!new ItemFileTransaction().restoreBackup(todoFile, backupFile)) {
+                throw new IOException("Unable to restore fridge item file");
+            }
             if (!todoFile.exists()) {
                 itemStorageAvailable = true;
                 return;
@@ -235,7 +240,9 @@ public class MainActivity extends Activity {
         }
         File todoFile = new File(filesDir, textFileName);
         File temporaryFile = new File(filesDir, ITEM_TEMP_FILE_NAME);
+        File backupFile = new File(filesDir, ITEM_BACKUP_FILE_NAME);
         boolean written = false;
+        ItemFileTransaction.Result replacementResult = ItemFileTransaction.Result.FAILED;
         try {
             if (!itemFileFitsSizeLimit()) {
                 throw new IOException("Fridge item file is too large");
@@ -244,7 +251,11 @@ public class MainActivity extends Activity {
             if (temporaryFile.length() > ITEM_FILE_MAX_BYTES) {
                 throw new IOException("Fridge item file is too large");
             }
-            if (!temporaryFile.renameTo(todoFile)) {
+            replacementResult = new ItemFileTransaction().replace(
+                    temporaryFile,
+                    todoFile,
+                    backupFile);
+            if (replacementResult != ItemFileTransaction.Result.INSTALLED) {
                 throw new IOException("Unable to replace fridge item file");
             }
             written = true;
@@ -253,7 +264,10 @@ public class MainActivity extends Activity {
         } finally {
             boolean temporaryFileRemoved;
             try {
-                temporaryFileRemoved = !temporaryFile.exists() || temporaryFile.delete();
+                temporaryFileRemoved = replacementResult
+                        == ItemFileTransaction.Result.FAILED_PRESERVE_TEMPORARY
+                        || !temporaryFile.exists()
+                        || temporaryFile.delete();
             } catch (SecurityException e) {
                 temporaryFileRemoved = false;
             }

@@ -1,7 +1,7 @@
 ---
 title: Atomic Fridge Item File Replacement
 type: fix
-status: planned
+status: completed
 date: 2026-06-14
 ---
 
@@ -23,8 +23,9 @@ last-known-good preservation contract.
 - Restore the prior item file when installation fails.
 - Keep both recoverable copies when rollback itself fails; never delete the
   backup in that path.
-- Remove the backup after successful installation, treating cleanup failure as
-  a failed save so recovery remains explicit.
+- Remove the backup after successful installation when possible. A cleanup
+  failure must retain the stale backup without changing the successful save;
+  the next write must clear it before touching the canonical file.
 - Extract the replacement transaction from `MainActivity` into a package-private
   Java component with deterministic filesystem-operation injection.
 - Add unit tests for first installation, successful replacement, installation
@@ -78,3 +79,16 @@ force each failure boundary without Android or filesystem-specific races.
   recovery rather than deleting the only remaining copies.
 - No emulator storage corruption or lifecycle scenario is claimed by the unit
   suite; the checked-in device matrix remains the runtime boundary.
+
+## Verification Results
+
+- Eight focused `ItemFileTransactionTest` cases passed for first install,
+  replacement, install rollback, rollback failure, stale backup refusal,
+  cleanup failure, startup recovery, and failed startup recovery.
+- Repository and external-directory `make check` passed, including SDK-backed
+  lint, unit tests, debug assembly, and the portable contract checks.
+- Ten hostile mutations were rejected across transaction ordering, rollback,
+  recoverable-copy retention, activity delegation, tests, the pinned JUnit
+  dependency, documentation, and completed-plan evidence.
+- No emulator storage corruption or lifecycle scenario was executed, and no
+  device persistence result is claimed.

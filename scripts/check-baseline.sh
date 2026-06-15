@@ -14,6 +14,10 @@ SINGLE_LINE_PLAN="$ROOT_DIR/docs/plans/2026-06-13-fridge-single-line-items.md"
 STORAGE_SECURITY_PLAN="$ROOT_DIR/docs/plans/2026-06-13-fridge-storage-security-exceptions.md"
 FILES_DIR_PLAN="$ROOT_DIR/docs/plans/2026-06-13-fridge-files-directory-unavailable.md"
 DEVICE_VERIFICATION_PLAN="$ROOT_DIR/docs/plans/2026-06-14-fridge-device-verification-checklist.md"
+ATOMIC_REPLACEMENT_PLAN="$ROOT_DIR/docs/plans/2026-06-14-atomic-item-file-replacement.md"
+ITEM_TRANSACTION="$ROOT_DIR/app/src/main/java/garethpaul/com/fridge/ItemFileTransaction.java"
+ITEM_TRANSACTION_TEST="$ROOT_DIR/app/src/test/java/garethpaul/com/fridge/ItemFileTransactionTest.java"
+APP_BUILD="$ROOT_DIR/app/build.gradle"
 CI_PLAN="$ROOT_DIR/docs/plans/2026-06-10-ci-baseline.md"
 HOSTED_ANDROID_PLAN="$ROOT_DIR/docs/plans/2026-06-12-hosted-android-verification.md"
 WRAPPER_PLAN="$ROOT_DIR/docs/plans/2026-06-12-gradle-wrapper-verification.md"
@@ -207,8 +211,8 @@ for pattern in \
   "FileUtils.readLines(" \
   "ITEM_FILE_ENCODING));" \
   "FileUtils.writeLines(temporaryFile, ITEM_FILE_ENCODING, items);" \
-  "if (!temporaryFile.renameTo(todoFile))" \
-  "temporaryFileRemoved = !temporaryFile.exists() || temporaryFile.delete();" \
+  "replacementResult = new ItemFileTransaction().replace(" \
+  "|| temporaryFile.delete();" \
   "catch (SecurityException e)" \
   "if (!temporaryFileRemoved)" \
   "String itemText = normalizedItemText(etNewItem);" \
@@ -242,11 +246,11 @@ if ! awk '
   in_read && /FileUtils.readLines\(/ { read_parse = NR }
   in_write && /FileUtils.writeLines\(temporaryFile, ITEM_FILE_ENCODING, items\);/ { write_temp = NR }
   in_write && /if \(temporaryFile.length\(\) > ITEM_FILE_MAX_BYTES\)/ { write_limit = NR }
-  in_write && /if \(!temporaryFile.renameTo\(todoFile\)\)/ { write_rename = NR }
+  in_write && /replacementResult = new ItemFileTransaction\(\).replace\(/ { write_replace = NR }
   END {
     exit !(read_limit && read_parse && read_limit < read_parse &&
-      write_temp && write_limit && write_rename &&
-      write_temp < write_limit && write_limit < write_rename)
+      write_temp && write_limit && write_replace &&
+      write_temp < write_limit && write_limit < write_replace)
   }
 ' "$MAIN_ACTIVITY"; then
   printf '%s\n' "Fridge item size checks must precede parsing and durable replacement." >&2
@@ -270,10 +274,10 @@ if ! awk '
   in_write && /if \(!itemFileFitsSizeLimit\(\)\)/ { preflight = NR }
   in_write && /FileUtils.writeLines\(temporaryFile, ITEM_FILE_ENCODING, items\);/ { write_temp = NR }
   in_write && /if \(temporaryFile.length\(\) > ITEM_FILE_MAX_BYTES\)/ { postflight = NR }
-  in_write && /if \(!temporaryFile.renameTo\(todoFile\)\)/ { rename = NR }
+  in_write && /replacementResult = new ItemFileTransaction\(\).replace\(/ { replace = NR }
   END {
-    exit !(preflight && write_temp && postflight && rename &&
-      preflight < write_temp && write_temp < postflight && postflight < rename)
+    exit !(preflight && write_temp && postflight && replace &&
+      preflight < write_temp && write_temp < postflight && postflight < replace)
   }
 ' "$MAIN_ACTIVITY"; then
   printf '%s\n' "Fridge must reject oversized serialized items before temporary writes and retain post-write defense." >&2
@@ -443,7 +447,8 @@ for storage_catch in "$READ_ITEMS_COMPACT" "$WRITE_ITEMS_COMPACT"; do
 done
 
 for read_security_contract in \
-  'try{if(!todoFile.exists())' \
+  'try{if(!newItemFileTransaction().restoreBackup(todoFile,backupFile))' \
+  'if(!todoFile.exists())' \
   'itemStorageAvailable=false;' \
   'Log.w(LOG_TAG,"Unabletoreadfridgeitems");' \
   'showReadError();'; do
@@ -455,7 +460,7 @@ done
 
 for write_security_contract in \
   'Log.w(LOG_TAG,"Unabletowritefridgeitems");' \
-  'temporaryFileRemoved=!temporaryFile.exists()||temporaryFile.delete();' \
+  'temporaryFileRemoved=replacementResult==ItemFileTransaction.Result.FAILED_PRESERVE_TEMPORARY||!temporaryFile.exists()||temporaryFile.delete();' \
   'catch(SecurityExceptione){temporaryFileRemoved=false;}' \
   'if(!temporaryFileRemoved){Log.w(LOG_TAG,"Unabletoremovetemporaryfridgeitemfile");}' \
   'returnwritten;'; do
@@ -832,5 +837,82 @@ if grep -Fq "/home/gjones" "$ROOT_DIR/Makefile"; then
   printf '%s\n' "Makefile must not embed a maintainer-specific Android SDK path." >&2
   exit 1
 fi
+
+for transaction_contract in \
+  "enum Result" \
+  "FAILED_PRESERVE_TEMPORARY" \
+  "files.rename(targetFile, backupFile)" \
+  "files.rename(temporaryFile, targetFile)" \
+  "files.rename(backupFile, targetFile)" \
+  "boolean restoreBackup(File targetFile, File backupFile)"; do
+  if ! grep -Fq "$transaction_contract" "$ITEM_TRANSACTION"; then
+    printf '%s\n' "ItemFileTransaction must keep contract: $transaction_contract" >&2
+    exit 1
+  fi
+done
+
+backup_line=$(grep -nF "files.rename(targetFile, backupFile)" "$ITEM_TRANSACTION" | head -n 1 | cut -d: -f1)
+install_line=$(grep -nF "files.rename(temporaryFile, targetFile)" "$ITEM_TRANSACTION" | head -n 1 | cut -d: -f1)
+rollback_line=$(grep -nF "files.rename(backupFile, targetFile)" "$ITEM_TRANSACTION" | head -n 1 | cut -d: -f1)
+if [ -z "$backup_line" ] || [ -z "$install_line" ] || [ -z "$rollback_line" ] || \
+   [ "$backup_line" -ge "$install_line" ] || [ "$install_line" -ge "$rollback_line" ]; then
+  printf '%s\n' "Item-file replacement must back up before install and roll back after install failure." >&2
+  exit 1
+fi
+
+for activity_transaction_contract in \
+  "ITEM_BACKUP_FILE_NAME" \
+  "new ItemFileTransaction().restoreBackup(todoFile, backupFile)" \
+  "new ItemFileTransaction().replace(" \
+  "ItemFileTransaction.Result.FAILED_PRESERVE_TEMPORARY"; do
+  if ! grep -Fq "$activity_transaction_contract" "$MAIN_ACTIVITY"; then
+    printf '%s\n' "MainActivity must keep item transaction integration: $activity_transaction_contract" >&2
+    exit 1
+  fi
+done
+
+for transaction_test_contract in \
+  "installsFirstItemFile" \
+  "replacesExistingItemFileAndRemovesBackup" \
+  "restoresExistingItemFileWhenInstallationFails" \
+  "preservesTemporaryAndBackupFilesWhenRollbackFails" \
+  "refusesToTouchCurrentFileWhenStaleBackupCannotBeRemoved" \
+  "successfulInstallSurvivesBackupCleanupFailure" \
+  "restoresBackupWhenCanonicalFileIsMissing" \
+  "preservesBackupWhenStartupRecoveryFails"; do
+  if ! grep -Fq "$transaction_test_contract" "$ITEM_TRANSACTION_TEST"; then
+    printf '%s\n' "ItemFileTransactionTest must keep case: $transaction_test_contract" >&2
+    exit 1
+  fi
+done
+
+if ! grep -Fq "testCompile group: 'junit', name: 'junit', version: '4.13.2'" "$APP_BUILD"; then
+  printf '%s\n' "Android unit tests must keep the pinned JUnit 4.13.2 dependency." >&2
+  exit 1
+fi
+
+for transaction_doc_contract in \
+  "$README|same-directory backup" \
+  "$SECURITY|Failed rollback preserves both" \
+  "$ROOT_DIR/VISION.md|last-known-good item file" \
+  "$ROOT_DIR/CHANGES.md|backup/install/rollback transaction"; do
+  transaction_doc=${transaction_doc_contract%%|*}
+  transaction_text=${transaction_doc_contract#*|}
+  if ! tr '\n' ' ' < "$transaction_doc" | tr -s '[:space:]' ' ' | grep -Fq "$transaction_text"; then
+    printf '%s\n' "$transaction_doc must document atomic item-file replacement." >&2
+    exit 1
+  fi
+done
+
+for transaction_plan_contract in \
+  "status: completed" \
+  "make check" \
+  "hostile mutations" \
+  "No emulator storage corruption or lifecycle scenario was executed"; do
+  if ! grep -Fqi "$transaction_plan_contract" "$ATOMIC_REPLACEMENT_PLAN"; then
+    printf '%s\n' "Atomic replacement plan must keep completion evidence: $transaction_plan_contract" >&2
+    exit 1
+  fi
+done
 
 printf '%s\n' "Fridge tablet baseline checks passed."
