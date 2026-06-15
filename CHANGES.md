@@ -2,6 +2,8 @@
 
 ## 2026-06-14
 
+- Replaced platform-dependent direct item-file replacement with a tested
+  backup/install/rollback transaction and startup backup recovery.
 - Added a 1 MiB item-file limit before full-file parsing and before temporary
   output can replace the durable fridge list.
 - Preflighted encoded fridge item size before opening temporary output while

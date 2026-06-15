@@ -34,6 +34,8 @@ Priority:
 - Fail closed when Android reports an unavailable app files directory
 - Replace fridge-list contents through a temporary file instead of truncating
   the destination during writes
+- Preserve and restore the last-known-good item file across replacement
+  failures, retaining recoverable copies if rollback itself fails
 - Keep optional tablet input services guarded before keyboard operations
 - Keep personal fridge-list contents out of diagnostic logs
 - Keep local fridge-list contents out of Android backups by default

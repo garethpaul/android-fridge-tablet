@@ -51,6 +51,9 @@ Helpful reports include:
   and oversized temporary output before replacing the durable list.
 - A preflight size check runs before temporary output is opened, while the
   post-write check remains in place before replacement.
+- Durable replacement retains the prior item file as a same-directory backup
+  until installation succeeds. Failed rollback preserves both the backup and
+  temporary file instead of deleting the only recoverable copies.
 - Line separators in fridge item input are normalized before line-oriented
   local persistence so one submission cannot create extra entries on reload.
 
