@@ -143,9 +143,9 @@ public class ItemListTransactionTest {
         }
 
         @Override
-        public boolean persist() {
+        public boolean persist(List<String> proposedItems) {
             calls += 1;
-            observedItems = new ArrayList<String>(items);
+            observedItems = new ArrayList<String>(proposedItems);
             return result;
         }
     }
@@ -162,9 +162,9 @@ public class ItemListTransactionTest {
         }
 
         @Override
-        public boolean persist() {
+        public boolean persist(List<String> proposedItems) {
             calls += 1;
-            observedItems = new ArrayList<String>(items);
+            observedItems = new ArrayList<String>(proposedItems);
             throw error;
         }
     }

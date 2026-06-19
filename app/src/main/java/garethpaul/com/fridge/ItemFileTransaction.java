@@ -55,9 +55,6 @@ final class ItemFileTransaction {
         }
 
         if (files.rename(temporaryFile, targetFile)) {
-            if (hadTarget && files.exists(backupFile)) {
-                files.delete(backupFile);
-            }
             return Result.INSTALLED;
         }
 

@@ -1,5 +1,17 @@
 # Changes
 
+## 2026-06-19
+
+- Replaced permissive whole-file persistence with a strict UTF-8 item store
+  that bounds item count, per-item bytes, aggregate bytes, and control content.
+- Rejected symlinked or non-regular storage files, hardened owner-only file
+  permissions, synced temporary content before replacement, and validated
+  backups before corruption recovery.
+- Changed UI list transactions to persist a proposed snapshot before committing
+  it to the adapter-owned model, with serialized mutation ownership.
+- Added host filesystem, concurrency, instrumentation, static-policy, and
+  hostile mutation tests; removed the unused legacy Commons IO dependency.
+
 ## 2026-06-15
 
 - Added an explicit launcher export boundary for the sole `MAIN`/`LAUNCHER`

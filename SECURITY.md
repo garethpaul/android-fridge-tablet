@@ -1,5 +1,21 @@
 # Security Policy
 
+## Fridge item storage
+
+Fridge items stay in the application-private files directory with Android
+backup disabled. Reads reject malformed UTF-8, non-LF line boundaries,
+oversized files, excessive item counts, overlong items, control characters,
+symlinks, and non-regular files.
+Writes use a same-directory temporary file, restrict it to owner access, flush
+and sync its contents before replacement, and retain the previous file until a
+later read validates the new target. Logs use fixed messages and never include
+item contents, paths, or exception text.
+
+The Java file API does not expose a portable directory fsync on this preserved
+API 21 baseline. File contents are synced before rename and a backup is retained
+for recovery, but sudden power loss during directory metadata updates remains a
+device/filesystem-specific residual risk.
+
 ## Supported Versions
 
 The supported security scope for `android-fridge-tablet` is the current default branch, `master`. Older commits, tags, branches, forks, demos, and generated artifacts are not actively supported unless the repository explicitly marks them as maintained.

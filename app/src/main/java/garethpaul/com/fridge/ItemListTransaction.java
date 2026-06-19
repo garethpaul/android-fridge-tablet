@@ -1,5 +1,6 @@
 package garethpaul.com.fridge;
 
+import java.util.ArrayList;
 import java.util.List;
 
 final class ItemListTransaction {
@@ -10,23 +11,20 @@ final class ItemListTransaction {
     }
 
     interface Persistence {
-        boolean persist();
+        boolean persist(List<String> proposedItems);
     }
 
     Result add(List<String> items, String item, Persistence persistence) {
-        int addedPosition = items.size();
-        items.add(item);
-        try {
-            if (persistence.persist()) {
+        synchronized (items) {
+            ArrayList<String> proposedItems = new ArrayList<String>(items);
+            proposedItems.add(item);
+            if (persistence.persist(proposedItems)) {
+                items.clear();
+                items.addAll(proposedItems);
                 return Result.COMMITTED;
             }
-        } catch (RuntimeException error) {
-            items.remove(addedPosition);
-            throw error;
+            return Result.ROLLED_BACK;
         }
-
-        items.remove(addedPosition);
-        return Result.ROLLED_BACK;
     }
 
     Result remove(List<String> items, int position, Persistence persistence) {
@@ -34,17 +32,18 @@ final class ItemListTransaction {
             return Result.UNCHANGED;
         }
 
-        String removedItem = items.remove(position);
-        try {
-            if (persistence.persist()) {
+        synchronized (items) {
+            if (position < 0 || position >= items.size()) {
+                return Result.UNCHANGED;
+            }
+            ArrayList<String> proposedItems = new ArrayList<String>(items);
+            proposedItems.remove(position);
+            if (persistence.persist(proposedItems)) {
+                items.clear();
+                items.addAll(proposedItems);
                 return Result.COMMITTED;
             }
-        } catch (RuntimeException error) {
-            items.add(position, removedItem);
-            throw error;
+            return Result.ROLLED_BACK;
         }
-
-        items.add(position, removedItem);
-        return Result.ROLLED_BACK;
     }
 }

@@ -30,7 +30,7 @@ public class ItemFileTransactionTest {
     }
 
     @Test
-    public void replacesExistingItemFileAndRemovesBackup() {
+    public void replacesExistingItemFileAndPreservesBackupUntilVerifiedRead() {
         FakeFiles files = new FakeFiles(temporaryFile, targetFile);
 
         ItemFileTransaction.Result result = transaction(files).replace(
@@ -39,8 +39,8 @@ public class ItemFileTransactionTest {
                 backupFile);
 
         assertEquals(ItemFileTransaction.Result.INSTALLED, result);
-        files.assertPresent(targetFile);
-        files.assertAbsent(temporaryFile, backupFile);
+        files.assertPresent(targetFile, backupFile);
+        files.assertAbsent(temporaryFile);
     }
 
     @Test
@@ -86,21 +86,6 @@ public class ItemFileTransactionTest {
 
         assertEquals(ItemFileTransaction.Result.FAILED, result);
         files.assertPresent(temporaryFile, targetFile, backupFile);
-    }
-
-    @Test
-    public void successfulInstallSurvivesBackupCleanupFailure() {
-        FakeFiles files = new FakeFiles(temporaryFile, targetFile);
-        files.failDelete(backupFile);
-
-        ItemFileTransaction.Result result = transaction(files).replace(
-                temporaryFile,
-                targetFile,
-                backupFile);
-
-        assertEquals(ItemFileTransaction.Result.INSTALLED, result);
-        files.assertPresent(targetFile, backupFile);
-        files.assertAbsent(temporaryFile);
     }
 
     @Test

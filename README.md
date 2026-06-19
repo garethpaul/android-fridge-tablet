@@ -66,6 +66,11 @@ an uncached build still needs Gradle's HTTPS distribution service.
 
 ## Testing and Verification
 
+`make check` includes dependency-free host filesystem and mutation tests for
+fridge persistence before the Android Gradle lint, unit-test, and debug-build
+gates. Stored lists accept at most 512 non-empty items, each at most 4096 UTF-8
+bytes, within the existing 1 MiB aggregate file limit.
+
 - `make check` - runs the source baseline and Android SDK-backed Gradle checks
   when `ANDROID_HOME` or `ANDROID_SDK_ROOT` is configured
 - `scripts/check-baseline.sh` - runs SDK-free Fridge tablet baseline checks.

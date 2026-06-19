@@ -1,5 +1,18 @@
 # Fridge Tablet Device Verification
 
+## 2026-06-19 persistence follow-up
+
+The host suite verifies strict decoding, size and item limits, symlink
+rejection, owner-only file hardening, backup validation, and serialized
+UI-model commits. The checked-in instrumentation test covers an internal-files
+round trip on Android, but it has not been run on a physical tablet here.
+
+Device validation must still exercise process death and power loss during each
+write phase (temporary write, sync, target-to-backup rename, and install), then
+confirm the next launch shows either the complete previous list or the complete
+new list. It must also inspect the app sandbox permissions and test low-storage,
+read-only, and filesystem-error behavior without exposing item contents in logs.
+
 Run this matrix on the exact reviewed commit with a compatible Android SDK,
 Java 8, legacy Gradle runtime, and authorized emulator or tablet. Portable
 contracts do not substitute for real app-private storage evidence.
