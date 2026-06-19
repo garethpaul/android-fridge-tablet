@@ -17,30 +17,48 @@ The current focus is:
 
 Priority:
 
+- Keep the explicit launcher export boundary limited to `.MainActivity` and
+  keep unrelated Android components private
 - Preserve the documented Gradle, Android plugin, and SDK baseline
 - Keep the on-device fridge-list workflow understandable
 - Maintain SDK-free baseline verification
 - Keep fridge item creation from persisting empty-looking entries
+- Keep line separators in fridge item input from changing item boundaries after
+  reload
 - Keep visible fridge items consistent with successful durable writes
 - Keep item creation safe when legacy input views are missing
 - Keep list view setup safe when stale tablet layouts omit the list view
 - Keep date header updates safe when stale tablet layouts omit the header
 - Keep menu callbacks guarded when stale action-bar paths pass missing values
 - Keep local item file encoding explicit across device defaults
+- Keep storage permission failures inside fail-closed read and rollback write
+  boundaries
+- Fail closed when Android reports an unavailable app files directory
 - Replace fridge-list contents through a temporary file instead of truncating
   the destination during writes
+- Preserve and restore the last-known-good item file across replacement
+  failures, retaining recoverable copies if rollback itself fails
 - Keep optional tablet input services guarded before keyboard operations
 - Keep personal fridge-list contents out of diagnostic logs
 - Keep local fridge-list contents out of Android backups by default
+- Bound encoded fridge item storage to 1 MiB before parsing or replacement
+- Preflight encoded fridge item storage before temporary-file writes
 - Keep GitHub Actions running the root `make check` baseline before review
+- Keep the legacy Gradle runtime behind a checksum-verified generated wrapper
 - Avoid hiding old toolchain requirements or local SDK assumptions
+- Keep exact-commit tablet storage evidence separate from portable contracts,
+  with unexecuted persistence and corruption scenarios recorded explicitly
+- Test list creation, deletion, and persistence rollback as pure Java state transitions
+- Persistence exceptions restore the exact fridge list before propagation.
 
 Next priorities:
 
-- Modernize Gradle, target SDK, storage behavior, and date handling together
-- Add tests around list item creation, persistence, and deletion flows
+- Evaluate Gradle runtime, SDK, plugin, storage, and date modernization together
+  in a dedicated compatibility pass; wrapper bootstrap hardening is separate
 - Clarify emulator or tablet verification steps
 - Reduce obsolete dependency assumptions when the app is actively revived
+- Execute the Fridge device verification matrix with synthetic household data
+  and privacy-safe evidence
 
 Contribution rules:
 

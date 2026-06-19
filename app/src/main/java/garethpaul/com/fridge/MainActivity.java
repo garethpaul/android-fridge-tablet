@@ -17,29 +17,23 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
-
-import org.apache.commons.io.FileUtils;
 
 public class MainActivity extends Activity {
 
     private static final String LOG_TAG = "Fridge";
     private static final String DISPLAY_DATE_PATTERN = "M-d-yyyy";
-    private static final String ITEM_FILE_ENCODING = "UTF-8";
-    private static final String ITEM_TEMP_FILE_NAME = "food.txt.tmp";
-
     private ArrayList<String> items;
     private ArrayAdapter<String> itemsAdapter;
     private ListView lvItems;
     private TextView dateTime;
     private boolean itemStorageAvailable;
-
-    private String textFileName = "food.txt";
+    private final ItemListTransaction itemListTransaction = new ItemListTransaction();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,16 +96,19 @@ public class MainActivity extends Activity {
                     @Override
                     public boolean onItemLongClick(AdapterView<?> adapter,
                                                    View item, int pos, long id) {
-                        if (pos < 0 || pos >= items.size()) {
-                            return true;
+                        ItemListTransaction.Result result = itemListTransaction.remove(
+                                items,
+                                pos,
+                                new ItemListTransaction.Persistence() {
+                                    @Override
+                                    public boolean persist(List<String> proposedItems) {
+                                        return writeItems(proposedItems);
+                                    }
+                                });
+                        if (result == ItemListTransaction.Result.COMMITTED) {
+                            itemsAdapter.notifyDataSetChanged();
                         }
-
-                        // Remove the item within array at position
-                        String removedItem = items.remove(pos);
-                        // Refresh the adapter
-                        itemsAdapter.notifyDataSetChanged();
-                        if (!writeItems()) {
-                            items.add(pos, removedItem);
+                        if (result == ItemListTransaction.Result.ROLLED_BACK) {
                             itemsAdapter.notifyDataSetChanged();
                             showWriteError();
                         }
@@ -131,17 +128,27 @@ public class MainActivity extends Activity {
 
         EditText etNewItem = (EditText) findViewById(R.id.editText);
         String itemText = normalizedItemText(etNewItem);
+        if (itemText == null) {
+            showWriteError();
+            return;
+        }
         if (itemText.length() == 0) {
             return;
         }
 
-        // Add the item to the ListView
-        int addedPosition = items.size();
-        items.add(itemText);
-        itemsAdapter.notifyDataSetChanged();
-
-        if (!writeItems()) {
-            items.remove(addedPosition);
+        ItemListTransaction.Result result = itemListTransaction.add(
+                items,
+                itemText,
+                new ItemListTransaction.Persistence() {
+                    @Override
+                    public boolean persist(List<String> proposedItems) {
+                        return writeItems(proposedItems);
+                    }
+                });
+        if (result == ItemListTransaction.Result.COMMITTED) {
+            itemsAdapter.notifyDataSetChanged();
+        }
+        if (result == ItemListTransaction.Result.ROLLED_BACK) {
             itemsAdapter.notifyDataSetChanged();
             showWriteError();
             return;
@@ -163,55 +170,35 @@ public class MainActivity extends Activity {
             return "";
         }
 
-        return itemInput.getText().toString().trim();
+        return ItemPolicy.normalizeInput(itemInput.getText());
     }
 
     // Read Items from persistent storage
     private void readItems() {
-        File filesDir = getFilesDir();
-        File todoFile = new File(filesDir, textFileName);
         items = new ArrayList<String>();
-        if (!todoFile.exists()) {
-            itemStorageAvailable = true;
-            return;
-        }
-
         try {
-            items = new ArrayList<String>(FileUtils.readLines(
-                    todoFile,
-                    ITEM_FILE_ENCODING));
+            items = new ItemStore(getFilesDir()).read();
             itemStorageAvailable = true;
-        } catch (IOException e) {
+        } catch (IOException | SecurityException e) {
             itemStorageAvailable = false;
-            Log.w(LOG_TAG, "Unable to read fridge items", e);
+            Log.w(LOG_TAG, "Unable to read fridge items");
             showReadError();
         }
     }
 
     // Write items to persistent storage
-    private boolean writeItems() {
+    private boolean writeItems(List<String> proposedItems) {
         if (!itemStorageAvailable) {
             return false;
         }
 
-        File filesDir = getFilesDir();
-        File todoFile = new File(filesDir, textFileName);
-        File temporaryFile = new File(filesDir, ITEM_TEMP_FILE_NAME);
-        boolean written = false;
         try {
-            FileUtils.writeLines(temporaryFile, ITEM_FILE_ENCODING, items);
-            if (!temporaryFile.renameTo(todoFile)) {
-                throw new IOException("Unable to replace fridge item file");
-            }
-            written = true;
-        } catch (IOException e) {
-            Log.w(LOG_TAG, "Unable to write fridge items", e);
-        } finally {
-            if (temporaryFile.exists() && !temporaryFile.delete()) {
-                Log.w(LOG_TAG, "Unable to remove temporary fridge item file");
-            }
+            new ItemStore(getFilesDir()).write(proposedItems);
+            return true;
+        } catch (IOException | SecurityException e) {
+            Log.w(LOG_TAG, "Unable to write fridge items");
+            return false;
         }
-        return written;
     }
 
     private void showWriteError() {

@@ -4,6 +4,10 @@ android {
     compileSdkVersion 22
     buildToolsVersion "24.0.3"
 
+    aaptOptions {
+        useNewCruncher false
+    }
+
     defaultConfig {
         applicationId "garethpaul.com.fridge"
         minSdkVersion 21
@@ -21,5 +25,5 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile group: 'commons-io', name: 'commons-io', version: '2.0.1'
+    testCompile group: 'junit', name: 'junit', version: '4.13.2'
 }

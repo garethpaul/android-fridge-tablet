@@ -46,11 +46,21 @@
 ## Safety and gotchas
 
 - No required secret or credential file was identified in the repository scan. If you add integrations later, keep secrets out of git.
+- Keep the explicit launcher export boundary on `.MainActivity`, which owns the
+  sole `MAIN`/`LAUNCHER` filter; do not export unrelated components.
 - This legacy Android baseline pins Android build-tools 24.0.3 and preserves target SDK 21.
 - Fridge items are stored in the app's internal files directory, so the app does not request external storage permissions.
+- An unavailable app files directory must be rejected before constructing
+  canonical or temporary storage files.
 - Fridge item input is trimmed before persistence, and whitespace-only entries are ignored.
+- Persistence exceptions restore the exact fridge list before propagation.
+- Line separators in fridge item input are converted to spaces so one submitted
+  item remains one persisted item after reload.
 - A missing item input view is treated as empty input so stale tablet layouts do not crash item creation or keyboard setup.
 - A missing list view skips list wiring, and stale long-click positions are ignored before item removal.
+- If an existing fridge-item file cannot be read, storage becomes unavailable,
+  the UI reports the localized error, and add/write paths fail closed rather
+  than replacing unreadable data.
 
 ## Agent workflow
 
