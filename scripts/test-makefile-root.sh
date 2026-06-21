@@ -87,6 +87,15 @@ run_in_control_failure "$TEMP_ROOT/startup.out" env MAKEFILES="$STARTUP" "$MAKE_
 grep -Eq 'repository Makefile path could not be resolved|MAKEFILES must be empty' "$TEMP_ROOT/startup.out"
 [ -e "$STARTUP_MARKER" ]
 
+MAKEFILE_PATH_MARKER="$TEMP_ROOT/makefile-path-parse-marker"
+MAKEFILE_PATH_DIR="$TEMP_ROOT/path \$(shell /usr/bin/touch '$MAKEFILE_PATH_MARKER')"
+mkdir -p "$MAKEFILE_PATH_DIR"
+cp "$MAKEFILE" "$MAKEFILE_PATH_DIR/Makefile"
+set +e
+(cd "$CONTROL_DIR" && "$MAKE_BIN" --no-print-directory -f "$MAKEFILE_PATH_DIR/Makefile" "GRADLE=$FAKE_GRADLE" build) > "$TEMP_ROOT/makefile-path.out" 2>&1
+set -e
+[ -e "$MAKEFILE_PATH_MARKER" ]
+
 LATER="$TEMP_ROOT/later.mk"
 printf '%s\n' 'build:' '>@printf replaced' > "$LATER"
 run_in_control_failure "$TEMP_ROOT/later.out" "$MAKE_BIN" --no-print-directory -f "$MAKEFILE" -f "$LATER" "GRADLE=$FAKE_GRADLE" build
@@ -129,5 +138,8 @@ done
 require_text README.md 'Caller-supplied later makefiles, including target-specific SHELL/.SHELLFLAGS overrides and double-colon public recipes, are outside the local Make trust boundary.'
 require_text docs/plans/2026-06-21-android-fridge-system-make-boundary.md 'Startup makefiles can run parse-time Make functions before the repository Makefile rejects them.'
 require_text CHANGES.md 'Documented caller-supplied later makefiles and startup parse-time Make code as outside the local Make trust boundary.'
+require_text README.md 'Make syntax in an explicit `-f` path is evaluated before the repository Makefile loads.'
+require_text AGENTS.md 'Make syntax in an explicit `-f` path is evaluated before the repository Makefile loads'
+require_text CHANGES.md 'Documented explicit `-f` Make-syntax paths as pre-load caller authority.'
 
-printf '%s\n' 'Make authority tests passed: external root, SDK and Gradle selection, 3 raw Make-syntax controls, startup parse-time boundary reproduction, later single-colon rejection, later double-colon append boundary reproduction, later fake-shell bypass boundary reproduction, caller MAKEFLAGS rejection, and 10 unsafe mode rejections'
+printf '%s\n' 'Make authority tests passed: external root, SDK and Gradle selection, 3 raw Make-syntax controls, startup and explicit -f path parse-time boundary reproduction, later single-colon rejection, later double-colon append boundary reproduction, later fake-shell bypass boundary reproduction, caller MAKEFLAGS rejection, and 10 unsafe mode rejections'
