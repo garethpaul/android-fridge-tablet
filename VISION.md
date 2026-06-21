@@ -43,7 +43,7 @@ Priority:
 - Keep local fridge-list contents out of Android backups by default
 - Bound encoded fridge item storage to 1 MiB before parsing or replacement
 - Preflight encoded fridge item storage before temporary-file writes
-- Keep GitHub Actions running the root `make check` baseline before review
+- Keep GitHub Actions running the root `/usr/bin/make check` baseline before review
 - Keep the legacy Gradle runtime behind a checksum-verified generated wrapper
 - Avoid hiding old toolchain requirements or local SDK assumptions
 - Keep exact-commit tablet storage evidence separate from portable contracts,
@@ -64,7 +64,7 @@ Contribution rules:
 
 - One PR = one focused maintenance or app behavior topic.
 - Run `scripts/check-baseline.sh` before pushing.
-- Keep `.github/workflows/check.yml` aligned with the documented `make check`
+- Keep `.github/workflows/check.yml` aligned with the documented `/usr/bin/make check`
   wrapper.
 - Run the documented Gradle checks with a compatible Android SDK for code
   changes.
