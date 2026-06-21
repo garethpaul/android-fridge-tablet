@@ -23,6 +23,8 @@
 - Build: `/usr/bin/make build`
 - Android unit tests when the SDK is configured: `./gradlew test`
 - Android debug build when the SDK is configured: `./gradlew assembleDebug`
+- Run the Make aliases as documented, without caller-supplied extra `-f` files
+  or `MAKEFILES`, when collecting repository validation evidence.
 - If a command above skips because a platform toolchain is missing, verify on a machine with that SDK before claiming platform behavior is tested.
 
 ## Coding conventions
@@ -46,6 +48,9 @@
 ## Safety and gotchas
 
 - No required secret or credential file was identified in the repository scan. If you add integrations later, keep secrets out of git.
+- Caller-supplied later makefiles, including target-specific SHELL/.SHELLFLAGS overrides and double-colon public recipes, are outside the local Make trust boundary.
+- Startup makefiles can run parse-time Make functions before the repository
+  Makefile rejects them.
 - Keep the explicit launcher export boundary on `.MainActivity`, which owns the
   sole `MAIN`/`LAUNCHER` filter; do not export unrelated components.
 - This legacy Android baseline pins Android build-tools 24.0.3 and preserves target SDK 21.
