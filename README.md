@@ -46,7 +46,7 @@ Additional scan context:
 ```bash
 git clone https://github.com/garethpaul/android-fridge-tablet.git
 cd android-fridge-tablet
-make check
+/usr/bin/make check
 scripts/check-baseline.sh
 ./gradlew lint --no-daemon
 ./gradlew test --no-daemon
@@ -66,16 +66,16 @@ an uncached build still needs Gradle's HTTPS distribution service.
 
 ## Testing and Verification
 
-`make check` includes dependency-free host filesystem and mutation tests for
+`/usr/bin/make check` includes dependency-free host filesystem and mutation tests for
 fridge persistence before the Android Gradle lint, unit-test, and debug-build
 gates. Stored lists accept at most 512 non-empty items, each at most 4096 UTF-8
 bytes, within the existing 1 MiB aggregate file limit.
 
-- `make check` - runs the source baseline and Android SDK-backed Gradle checks
+- `/usr/bin/make check` - runs the Make authority harness, source baseline, and Android SDK-backed Gradle checks
   when `ANDROID_HOME` or `ANDROID_SDK_ROOT` is configured
 - `scripts/check-baseline.sh` - runs SDK-free Fridge tablet baseline checks.
 - The canonical GitHub Actions workflow installs Android API 22 and build-tools
-  24.0.3, selects Java 8, and runs full `make check` on pushes, pull requests,
+  24.0.3, selects Java 8, and runs full `/usr/bin/make check` on pushes, pull requests,
   and manual dispatches using Ubuntu 24.04 with superseded-run cancellation.
 - Local Gradle checks accept `ANDROID_HOME` or `ANDROID_SDK_ROOT` and match the
   hosted toolchain contract.

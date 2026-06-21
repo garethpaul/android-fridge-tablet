@@ -76,6 +76,7 @@ require_literal "$WORKFLOW" 'permissions:' 'Workflow permissions boundary missin
 require_literal "$WORKFLOW" 'contents: read' 'Workflow contents permission must remain read-only.'
 require_literal "$WORKFLOW" 'persist-credentials: false' 'Checkout credentials must not persist.'
 require_literal "$WORKFLOW" 'java-version: "8"' 'Legacy Android gate must remain on Java 8.'
+require_literal "$WORKFLOW" 'run: /usr/bin/make check' 'Hosted verification must use system Make.'
 if grep -Eq 'uses: [^@]+@(main|master|v[0-9]+)$' "$WORKFLOW"; then
   fail 'Workflow actions must be pinned to immutable commits.'
 fi
@@ -88,6 +89,11 @@ require_literal "$WRAPPER_PROPERTIES" 'distributionSha256Sum=1d7c28b3731906fd1b2
 [ -x "$ROOT_DIR/scripts/test-item-store.sh" ] || fail 'Host storage test gate missing or not executable.'
 [ -x "$ROOT_DIR/scripts/test-check-baseline.sh" ] || fail 'Mutation gate missing or not executable.'
 [ -x "$ROOT_DIR/scripts/check-historical-baseline.sh" ] || fail 'Historical baseline gate missing or not executable.'
+[ -x "$ROOT_DIR/scripts/test-makefile-root.sh" ] || fail 'Make authority harness missing or not executable.'
+require_literal "$ROOT_DIR/Makefile" 'MAKEFLAGS must not be overridden' 'Make mode authority guard missing.'
+require_literal "$ROOT_DIR/Makefile" 'MAKEFILES must be empty' 'Make startup-file guard missing.'
+require_literal "$ROOT_DIR/Makefile" 'scripts/test-makefile-root.sh' 'Make authority harness is not in the default gate.'
+require_literal "$ROOT_DIR/docs/plans/2026-06-21-android-fridge-system-make-boundary.md" 'Status: Completed' 'Make authority plan must be completed.'
 
 require_literal "$ROOT_DIR/SECURITY.md" 'malformed UTF-8' 'Security documentation must cover strict decoding.'
 require_literal "$ROOT_DIR/SECURITY.md" 'line boundaries' 'Security documentation must cover strict line boundaries.'

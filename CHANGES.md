@@ -1,5 +1,11 @@
 # Changes
 
+## 2026-06-21
+
+- Bound hosted and contributor verification to `/usr/bin/make` and added an
+  executable authority harness covering shell, root, SDK, Gradle, startup-file,
+  later-Makefile, and unsafe-mode boundaries.
+
 ## 2026-06-19
 
 - Replaced permissive whole-file persistence with a strict UTF-8 item store

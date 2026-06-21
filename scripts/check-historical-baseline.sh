@@ -96,7 +96,7 @@ jobs:
           java-version: "8"
 
       - name: Run full verification
-        run: make check
+        run: /usr/bin/make check
 EOF
 }
 
@@ -534,26 +534,27 @@ if [ ! -f "$CODEOWNERS" ] ||
 fi
 
 for make_contract in \
-  'override ROOT := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))' \
-  'ANDROID_HOME ?=' \
-  'ANDROID_SDK_ROOT ?=' \
-  'GRADLE ?= $(ROOT)gradlew' \
-  'ANDROID_SDK := $(if $(ANDROID_HOME),$(ANDROID_HOME),$(ANDROID_SDK_ROOT))'; do
-  if ! grep -Fxq "$make_contract" "$ROOT_DIR/Makefile"; then
+  'override SHELL := /bin/sh' \
+  'override ROOT := $(shell' \
+  'override GRADLE := $(ROOT)/gradlew' \
+  'override ANDROID_SDK := $(if $(ANDROID_HOME),$(ANDROID_HOME),$(ANDROID_SDK_ROOT))' \
+  'MAKEFLAGS must not be overridden' \
+  'MAKEFILES must be empty'; do
+  if ! grep -Fq "$make_contract" "$ROOT_DIR/Makefile"; then
     printf '%s\n' "Makefile must keep contract: $make_contract" >&2
     exit 1
   fi
 done
 
-if [ "$(grep -Fc '$(ROOT)scripts/check-baseline.sh' "$ROOT_DIR/Makefile")" -ne 1 ]; then
+if [ "$(grep -Fc "scripts/check-baseline.sh'" "$ROOT_DIR/Makefile")" -ne 1 ]; then
   printf '%s\n' "Makefile lint must run the baseline checker from the protected root." >&2
   exit 1
 fi
-if [ "$(grep -Fc 'cd $(ROOT) && ANDROID_HOME=' "$ROOT_DIR/Makefile")" -ne 3 ]; then
+if [ "$(grep -Fc "cd '\$(REPOSITORY_ROOT_LITERAL)' && ANDROID_HOME=" "$ROOT_DIR/Makefile")" -ne 3 ]; then
   printf '%s\n' "All three Gradle gates must execute from the protected root." >&2
   exit 1
 fi
-for gradle_contract in '$(GRADLE) lint --no-daemon' '$(GRADLE) test --no-daemon' '$(GRADLE) assembleDebug --no-daemon'; do
+for gradle_contract in "'\$(REPOSITORY_GRADLE_LITERAL)' lint --no-daemon" "'\$(REPOSITORY_GRADLE_LITERAL)' test --no-daemon" "'\$(REPOSITORY_GRADLE_LITERAL)' assembleDebug --no-daemon"; do
   if [ "$(grep -Fc "$gradle_contract" "$ROOT_DIR/Makefile")" -ne 1 ]; then
     printf '%s\n' "Makefile must keep one rooted Gradle contract: $gradle_contract" >&2
     exit 1
