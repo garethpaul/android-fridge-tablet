@@ -6,7 +6,7 @@
   executable authority harness covering shell, root, SDK, Gradle,
   single-colon recipe replacement, and unsafe-mode boundaries.
 - Documented caller-supplied later makefiles and startup parse-time Make code as outside the local Make trust boundary.
-- Documented explicit `-f` Make-syntax paths as pre-load caller authority.
+- Documented version-specific explicit `-f` Make-syntax paths as pre-load caller authority.
 
 ## 2026-06-19
 
