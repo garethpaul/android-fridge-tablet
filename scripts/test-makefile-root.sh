@@ -95,7 +95,7 @@ LATER_APPEND="$TEMP_ROOT/later-append.mk"
 LATER_APPEND_MARKER="$TEMP_ROOT/later-append-marker"
 printf 'build check lint root-test test verify: MAKEFILE_LIST := %s\n' "$MAKEFILE" > "$LATER_APPEND"
 printf 'build::\n\t@/usr/bin/touch %s\n' "$LATER_APPEND_MARKER" >> "$LATER_APPEND"
-run_in_control_success "$TEMP_ROOT/later-append.out" "$MAKE_BIN" --no-print-directory -f "$MAKEFILE" -f "$LATER_APPEND" "GRADLE=$FAKE_GRADLE" build
+run_in_control_success "$TEMP_ROOT/later-append.out" env ANDROID_FRIDGE_COMMAND_LOG="$LOG" "$MAKE_BIN" --no-print-directory -f "$MAKEFILE" -f "$LATER_APPEND" "ANDROID_HOME=$SDK" "GRADLE=$FAKE_GRADLE" build
 [ -e "$LATER_APPEND_MARKER" ]
 
 FAKE_SHELL="$TEMP_ROOT/fake-shell"
@@ -111,7 +111,7 @@ LATER_FAKE_SHELL="$TEMP_ROOT/later-fake-shell.mk"
 printf 'build check lint root-test test verify: MAKEFILE_LIST := %s\n' "$MAKEFILE" > "$LATER_FAKE_SHELL"
 printf 'build check lint root-test test verify: override SHELL := %s\n' "$FAKE_SHELL" >> "$LATER_FAKE_SHELL"
 printf 'build check lint root-test test verify: override .SHELLFLAGS := -c\n' >> "$LATER_FAKE_SHELL"
-run_in_control_success "$TEMP_ROOT/later-fake-shell.out" env ANDROID_FRIDGE_FAKE_SHELL_LOG="$FAKE_SHELL_LOG" "$MAKE_BIN" --no-print-directory -f "$MAKEFILE" -f "$LATER_FAKE_SHELL" check
+run_in_control_success "$TEMP_ROOT/later-fake-shell.out" env ANDROID_FRIDGE_COMMAND_LOG="$LOG" ANDROID_FRIDGE_FAKE_SHELL_LOG="$FAKE_SHELL_LOG" "$MAKE_BIN" --no-print-directory -f "$MAKEFILE" -f "$LATER_FAKE_SHELL" "ANDROID_HOME=$SDK" "GRADLE=$FAKE_GRADLE" check
 grep -Fq 'scripts/test-makefile-root.sh' "$FAKE_SHELL_LOG"
 grep -Fq 'scripts/check-baseline.sh' "$FAKE_SHELL_LOG"
 grep -Fq 'scripts/test-item-store.sh' "$FAKE_SHELL_LOG"
