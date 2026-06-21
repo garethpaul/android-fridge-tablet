@@ -17,7 +17,7 @@ override ANDROID_SDK_ROOT :=
 else
 override ANDROID_SDK_ROOT := $(value ANDROID_SDK_ROOT)
 endif
-override ROOT := $(shell path='$(subst ','"'"',$(value MAKEFILE_LIST))'; path=$$(/usr/bin/printf '%s' "$$path" | /usr/bin/sed 's/^ //'); [ -f "$$path" ] || exit 1; directory=$$(/usr/bin/dirname -- "$$path"); CDPATH= cd -- "$$directory" && /bin/pwd -P)
+override ROOT := $(shell path='$(subst ','"'"',$(value MAKEFILE_LIST))'; path=$$(/usr/bin/printf '%s' "$$path" | /usr/bin/sed 's/^ //'); [ -f "$$path" ] || exit 1; directory=$$(/usr/bin/dirname -- "$$path"); /usr/bin/printf '%s\n' "$$directory" | /usr/bin/grep -q '^/' || directory=./$$directory; CDPATH= cd "$$directory" && /bin/pwd -P)
 ifeq ($(origin GRADLE),undefined)
 override GRADLE := $(ROOT)/gradlew
 else

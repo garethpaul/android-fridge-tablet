@@ -1,7 +1,11 @@
 #!/bin/sh
 set -eu
 
-ROOT_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
+SCRIPT_DIR=$(dirname -- "$0")
+case $SCRIPT_DIR in
+  /*) ROOT_DIR=$(CDPATH='' cd "$SCRIPT_DIR/.." && pwd) ;;
+  *) ROOT_DIR=$(CDPATH='' cd "./$SCRIPT_DIR/.." && pwd) ;;
+esac
 MAIN_ACTIVITY="$ROOT_DIR/app/src/main/java/garethpaul/com/fridge/MainActivity.java"
 ITEM_POLICY="$ROOT_DIR/app/src/main/java/garethpaul/com/fridge/ItemPolicy.java"
 ITEM_STORE="$ROOT_DIR/app/src/main/java/garethpaul/com/fridge/ItemStore.java"
