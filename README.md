@@ -73,10 +73,17 @@ bytes, within the existing 1 MiB aggregate file limit.
 
 - `/usr/bin/make check` - runs the Make authority harness, source baseline, and Android SDK-backed Gradle checks
   when `ANDROID_HOME` or `ANDROID_SDK_ROOT` is configured
+- Caller-supplied later makefiles, including target-specific SHELL/.SHELLFLAGS overrides and double-colon public recipes, are outside the local Make trust boundary.
+- Startup makefiles can run parse-time Make functions before the repository
+  Makefile rejects them; run the documented commands without extra `-f` files
+  or `MAKEFILES` when collecting local validation evidence.
+- Make syntax in an explicit `-f` path is version-sensitive before the repository Makefile loads. For checkout paths containing literal `$(`, change into the checkout and invoke `/usr/bin/make` without an explicit Makefile path.
 - `scripts/check-baseline.sh` - runs SDK-free Fridge tablet baseline checks.
 - The canonical GitHub Actions workflow installs Android API 22 and build-tools
   24.0.3, selects Java 8, and runs full `/usr/bin/make check` on pushes, pull requests,
   and manual dispatches using Ubuntu 24.04 with superseded-run cancellation.
+  Hosted GitHub Actions remains authoritative because it invokes the checked-in
+  workflow command without caller-supplied extra makefiles or startup files.
 - Local Gradle checks accept `ANDROID_HOME` or `ANDROID_SDK_ROOT` and match the
   hosted toolchain contract.
 - The baseline check protects internal storage, date formatting, layout

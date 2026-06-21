@@ -1,7 +1,11 @@
 #!/bin/sh
 set -eu
 
-ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+SCRIPT_DIR=$(dirname -- "$0")
+case $SCRIPT_DIR in
+  /*) ROOT_DIR=$(CDPATH='' cd "$SCRIPT_DIR/.." && pwd) ;;
+  *) ROOT_DIR=$(CDPATH='' cd "./$SCRIPT_DIR/.." && pwd) ;;
+esac
 MAIN_ACTIVITY="$ROOT_DIR/app/src/main/java/garethpaul/com/fridge/MainActivity.java"
 ITEM_POLICY="$ROOT_DIR/app/src/main/java/garethpaul/com/fridge/ItemPolicy.java"
 ITEM_STORE="$ROOT_DIR/app/src/main/java/garethpaul/com/fridge/ItemStore.java"
@@ -94,6 +98,12 @@ require_literal "$ROOT_DIR/Makefile" 'MAKEFLAGS must not be overridden' 'Make mo
 require_literal "$ROOT_DIR/Makefile" 'MAKEFILES must be empty' 'Make startup-file guard missing.'
 require_literal "$ROOT_DIR/Makefile" 'scripts/test-makefile-root.sh' 'Make authority harness is not in the default gate.'
 require_literal "$ROOT_DIR/docs/plans/2026-06-21-android-fridge-system-make-boundary.md" 'Status: Completed' 'Make authority plan must be completed.'
+require_literal "$ROOT_DIR/scripts/test-makefile-root.sh" 'later fake-shell bypass boundary reproduction' 'Make authority harness must reproduce later fake-shell boundary.'
+require_literal "$ROOT_DIR/scripts/test-makefile-root.sh" 'later double-colon append boundary reproduction' 'Make authority harness must reproduce double-colon append boundary.'
+require_literal "$ROOT_DIR/scripts/test-makefile-root.sh" 'startup parse-time boundary reproduction' 'Make authority harness must reproduce startup parse-time boundary.'
+require_literal "$ROOT_DIR/README.md" 'Caller-supplied later makefiles, including target-specific SHELL/.SHELLFLAGS overrides and double-colon public recipes, are outside the local Make trust boundary.' 'README must document caller-supplied Make boundary.'
+require_literal "$ROOT_DIR/CHANGES.md" 'Documented caller-supplied later makefiles and startup parse-time Make code as outside the local Make trust boundary.' 'CHANGES must record the truthful Make boundary.'
+require_literal "$ROOT_DIR/docs/plans/2026-06-21-android-fridge-system-make-boundary.md" 'Startup makefiles can run parse-time Make functions before the repository Makefile rejects them.' 'Make authority plan must document startup parse-time boundary.'
 
 require_literal "$ROOT_DIR/SECURITY.md" 'malformed UTF-8' 'Security documentation must cover strict decoding.'
 require_literal "$ROOT_DIR/SECURITY.md" 'line boundaries' 'Security documentation must cover strict line boundaries.'
