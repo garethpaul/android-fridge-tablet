@@ -7,6 +7,7 @@
   single-colon recipe replacement, and unsafe-mode boundaries.
 - Documented caller-supplied later makefiles and startup parse-time Make code as outside the local Make trust boundary.
 - Documented version-specific explicit `-f` Make-syntax paths as pre-load caller authority.
+- Covered GNU Make 4.2.1's explicit `-f` pre-load behavior in the portable authority regression harness.
 
 ## 2026-06-19
 

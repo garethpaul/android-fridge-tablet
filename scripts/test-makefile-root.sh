@@ -96,7 +96,7 @@ set +e
 set -e
 MAKE_VERSION=$($MAKE_BIN --version | /usr/bin/head -n 1)
 case $MAKE_VERSION in
-  *"GNU Make 3.81"*) [ -e "$MAKEFILE_PATH_MARKER" ] ;;
+  *"GNU Make 3.81"*|*"GNU Make 4.2.1"*) [ -e "$MAKEFILE_PATH_MARKER" ] ;;
   *) [ ! -e "$MAKEFILE_PATH_MARKER" ] ;;
 esac
 
@@ -145,5 +145,7 @@ require_text CHANGES.md 'Documented caller-supplied later makefiles and startup 
 require_text README.md 'Make syntax in an explicit `-f` path is version-sensitive before the repository Makefile loads.'
 require_text AGENTS.md 'Make syntax in an explicit `-f` path is version-sensitive before the repository Makefile loads'
 require_text CHANGES.md 'Documented version-specific explicit `-f` Make-syntax paths as pre-load caller authority.'
+require_text docs/plans/2026-06-21-android-fridge-system-make-boundary.md 'GNU Make 3.81 and 4.2.1 execute Make syntax in an explicit `-f` path before the repository Makefile loads.'
+require_text CHANGES.md "Covered GNU Make 4.2.1's explicit \`-f\` pre-load behavior in the portable authority regression harness."
 
 printf '%s\n' 'Make authority tests passed: external root, SDK and Gradle selection, 3 raw Make-syntax controls, startup parse-time boundary reproduction and version-specific explicit -f path boundary proof, later single-colon rejection, later double-colon append boundary reproduction, later fake-shell bypass boundary reproduction, caller MAKEFLAGS rejection, and 10 unsafe mode rejections'
