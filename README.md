@@ -77,7 +77,7 @@ bytes, within the existing 1 MiB aggregate file limit.
 - Startup makefiles can run parse-time Make functions before the repository
   Makefile rejects them; run the documented commands without extra `-f` files
   or `MAKEFILES` when collecting local validation evidence.
-- Make syntax in an explicit `-f` path is version-sensitive before the repository Makefile loads. For checkout paths containing literal `$(`, change into the checkout and invoke `/usr/bin/make` without an explicit Makefile path.
+- Make syntax in an explicit `-f` path is version-sensitive before the repository Makefile loads. GNU Make 3.81 and 4.2.1 execute that syntax before loading the repository Makefile. For checkout paths containing literal `$(`, change into the checkout and invoke `/usr/bin/make` without an explicit Makefile path.
 - `scripts/check-baseline.sh` - runs SDK-free Fridge tablet baseline checks.
 - The canonical GitHub Actions workflow installs Android API 22 and build-tools
   24.0.3, selects Java 8, and runs full `/usr/bin/make check` on pushes, pull requests,

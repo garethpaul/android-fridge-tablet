@@ -51,7 +51,7 @@
 - Caller-supplied later makefiles, including target-specific SHELL/.SHELLFLAGS overrides and double-colon public recipes, are outside the local Make trust boundary.
 - Startup makefiles can run parse-time Make functions before the repository
   Makefile rejects them.
-- Make syntax in an explicit `-f` path is version-sensitive before the repository Makefile loads; use the checkout as the working directory for paths containing literal `$(`.
+- Make syntax in an explicit `-f` path is version-sensitive before the repository Makefile loads; GNU Make 3.81 and 4.2.1 execute that syntax before loading the repository Makefile. Use the checkout as the working directory for paths containing literal `$(`.
 - Keep the explicit launcher export boundary on `.MainActivity`, which owns the
   sole `MAIN`/`LAUNCHER` filter; do not export unrelated components.
 - This legacy Android baseline pins Android build-tools 24.0.3 and preserves target SDK 21.

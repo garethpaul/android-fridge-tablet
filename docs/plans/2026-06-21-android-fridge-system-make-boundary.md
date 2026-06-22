@@ -22,8 +22,7 @@ Startup makefiles can run parse-time Make functions before the repository Makefi
   double-colon public recipe appends, and startup parse-time Make code as
   outside the local Make trust boundary.
 - Recorded that Make syntax in an explicit `-f` path is version-sensitive before the
-  repository Makefile loads; literal `$(` checkout paths must be invoked from
-  inside the checkout without an explicit Makefile path.
+  repository Makefile loads. GNU Make 3.81 and 4.2.1 execute Make syntax in an explicit `-f` path before the repository Makefile loads. Literal `$(` checkout paths must be invoked from inside the checkout without an explicit Makefile path.
 - Added `scripts/test-makefile-root.sh` to `/usr/bin/make check`.
 - Extended the portable baseline and exact workflow contract.
 
