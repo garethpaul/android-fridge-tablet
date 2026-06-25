@@ -17,6 +17,8 @@ public final class ItemStoreHostTest {
         test.rejectsMalformedUtf8();
         test.rejectsCarriageReturnBoundariesAndOversizedLines();
         test.rejectsControlCharactersAndOversizedCollections();
+        test.rejectsUnicodeInvisibleOnlyItems();
+        test.preservesVisibleJoinedEmojiItems();
         test.rejectsSymlinkedStorageFiles();
         test.recoversVerifiedBackupWhenTargetIsCorrupt();
         test.preservesCorruptTargetWhenBackupIsAlsoInvalid();
@@ -103,6 +105,28 @@ public final class ItemStoreHostTest {
                 ItemPolicy.validateItems(tooMany);
             }
         });
+    }
+
+    private void rejectsUnicodeInvisibleOnlyItems() {
+        String[] invisibleItems = {
+                "\u00A0\u2003\u200B\u2060",
+                "\u034F",
+                "\u180B\u180F",
+                "\uFE0F",
+                "\uDB40\uDD00"
+        };
+
+        for (String invisible : invisibleItems) {
+            assertNull(ItemPolicy.normalizeInput(invisible));
+            assertFalse(ItemPolicy.isValidItem(invisible), "invisible-only item must be invalid");
+        }
+    }
+
+    private void preservesVisibleJoinedEmojiItems() {
+        String joinedEmoji = "\uD83D\uDC69\u200D\uD83C\uDF73";
+
+        assertEquals(joinedEmoji, ItemPolicy.normalizeInput(joinedEmoji));
+        assertTrue(ItemPolicy.isValidItem(joinedEmoji), "visible joined emoji must remain valid");
     }
 
     private void rejectsSymlinkedStorageFiles() throws Exception {

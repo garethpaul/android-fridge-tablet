@@ -10,6 +10,7 @@ MAIN_ACTIVITY="$ROOT_DIR/app/src/main/java/garethpaul/com/fridge/MainActivity.ja
 ITEM_POLICY="$ROOT_DIR/app/src/main/java/garethpaul/com/fridge/ItemPolicy.java"
 ITEM_STORE="$ROOT_DIR/app/src/main/java/garethpaul/com/fridge/ItemStore.java"
 LIST_TRANSACTION="$ROOT_DIR/app/src/main/java/garethpaul/com/fridge/ItemListTransaction.java"
+HOST_STORAGE_TEST="$ROOT_DIR/scripts/host-tests/garethpaul/com/fridge/ItemStoreHostTest.java"
 MANIFEST="$ROOT_DIR/app/src/main/AndroidManifest.xml"
 WORKFLOW="$ROOT_DIR/.github/workflows/check.yml"
 WRAPPER_JAR="$ROOT_DIR/gradle/wrapper/gradle-wrapper.jar"
@@ -49,7 +50,17 @@ require_literal "$ITEM_POLICY" 'MAX_FILE_BYTES = 1024L * 1024L' 'Aggregate item-
 require_literal "$ITEM_POLICY" 'MAX_ITEM_BYTES = 4096' 'Per-item byte limit missing.'
 require_literal "$ITEM_POLICY" 'MAX_ITEMS = 512' 'Item-count limit missing.'
 require_literal "$ITEM_POLICY" 'Character.isISOControl(codePoint)' 'Control-character rejection missing.'
+require_literal "$ITEM_POLICY" 'Character.isWhitespace(codePoint)' 'Unicode whitespace visibility rejection missing.'
+require_literal "$ITEM_POLICY" 'Character.isSpaceChar(codePoint)' 'Unicode separator visibility rejection missing.'
+require_literal "$ITEM_POLICY" 'Character.getType(codePoint) == Character.FORMAT' 'Unicode format-only visibility rejection missing.'
+require_literal "$ITEM_POLICY" 'codePoint == 0x034F' 'Combining grapheme joiner visibility rejection missing.'
+require_literal "$ITEM_POLICY" 'codePoint >= 0x180B && codePoint <= 0x180D' 'Mongolian variation-selector visibility rejection missing.'
+require_literal "$ITEM_POLICY" 'codePoint >= 0xFE00 && codePoint <= 0xFE0F' 'Variation-selector visibility rejection missing.'
+require_literal "$ITEM_POLICY" 'codePoint >= 0xE0100 && codePoint <= 0xE01EF' 'Supplementary variation-selector visibility rejection missing.'
+require_literal "$ITEM_POLICY" 'if (!hasVisibleContent)' 'Invisible-only item rejection missing.'
 require_literal "$ITEM_POLICY" 'CodingErrorAction.REPORT' 'Strict item encoding validation missing.'
+require_literal "$HOST_STORAGE_TEST" 'rejectsUnicodeInvisibleOnlyItems' 'Invisible-only item host regression missing.'
+require_literal "$HOST_STORAGE_TEST" 'preservesVisibleJoinedEmojiItems' 'Joined emoji visibility regression missing.'
 
 require_literal "$ITEM_STORE" 'getCanonicalFile()' 'Canonical storage containment check missing.'
 require_literal "$ITEM_STORE" '!file.isFile()' 'Non-regular storage rejection missing.'
@@ -107,6 +118,11 @@ require_literal "$ROOT_DIR/docs/plans/2026-06-21-android-fridge-system-make-boun
 
 require_literal "$ROOT_DIR/SECURITY.md" 'malformed UTF-8' 'Security documentation must cover strict decoding.'
 require_literal "$ROOT_DIR/SECURITY.md" 'line boundaries' 'Security documentation must cover strict line boundaries.'
+require_literal "$ROOT_DIR/SECURITY.md" 'Unicode invisible-only items' 'Security documentation must cover invisible-only item rejection.'
+require_literal "$ROOT_DIR/README.md" 'Unicode invisible-only entries are rejected' 'README must document Unicode-visible item validation.'
+require_literal "$ROOT_DIR/VISION.md" 'Unicode-visible item content' 'Vision must preserve Unicode-visible item validation.'
+require_literal "$ROOT_DIR/CHANGES.md" 'Rejected Unicode invisible-only fridge items' 'CHANGES must record Unicode-visible item validation.'
+require_literal "$ROOT_DIR/docs/plans/2026-06-25-fridge-unicode-visible-items.md" 'Status: Completed' 'Unicode-visible item plan must be completed.'
 require_literal "$ROOT_DIR/DEVICE_VERIFICATION.md" 'process death' 'Device verification must cover process death.'
 
 "$ROOT_DIR/scripts/check-historical-baseline.sh"

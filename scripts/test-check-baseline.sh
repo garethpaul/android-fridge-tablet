@@ -39,6 +39,12 @@ expect_rejected permissive-line-boundary \
   "perl -0pi -e 's/if \\(character == '\''\\\\n'\''\\)/if (character == '\''\\\\n'\'' || character == '\''\\\\r'\'')/' app/src/main/java/garethpaul/com/fridge/ItemStore.java"
 expect_rejected unbounded-items \
   "perl -0pi -e 's/MAX_ITEMS = 512/MAX_ITEMS = 500000/' app/src/main/java/garethpaul/com/fridge/ItemPolicy.java"
+expect_rejected unicode-separators-visible \
+  "perl -0pi -e 's/[[:space:]]*\\|\\| Character\.isSpaceChar\(codePoint\)//' app/src/main/java/garethpaul/com/fridge/ItemPolicy.java"
+expect_rejected unicode-format-visible \
+  "perl -0pi -e 's/[[:space:]]*\\|\\| Character\.getType\(codePoint\) == Character\.FORMAT//' app/src/main/java/garethpaul/com/fridge/ItemPolicy.java"
+expect_rejected unicode-variation-selectors-visible \
+  "perl -0pi -e 's/[[:space:]]*\\|\\| \\(codePoint >= 0xFE00 && codePoint <= 0xFE0F\\)//' app/src/main/java/garethpaul/com/fridge/ItemPolicy.java"
 expect_rejected exported-launcher-disabled \
   "perl -0pi -e 's/android:exported=\"true\"/android:exported=\"false\"/' app/src/main/AndroidManifest.xml"
 expect_rejected persistent-checkout-credentials \

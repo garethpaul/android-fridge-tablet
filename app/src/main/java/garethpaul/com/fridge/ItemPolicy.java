@@ -57,12 +57,19 @@ final class ItemPolicy {
         if (item == null || item.length() == 0) {
             return false;
         }
+        boolean hasVisibleContent = false;
         for (int offset = 0; offset < item.length();) {
             int codePoint = item.codePointAt(offset);
             if (isProhibitedCodePoint(codePoint)) {
                 return false;
             }
+            if (!isInvisibleCodePoint(codePoint)) {
+                hasVisibleContent = true;
+            }
             offset += Character.charCount(codePoint);
+        }
+        if (!hasVisibleContent) {
+            return false;
         }
         try {
             return encodedLength(item) <= MAX_ITEM_BYTES;
@@ -78,6 +85,21 @@ final class ItemPolicy {
                 || codePoint == 0x200F
                 || (codePoint >= 0x202A && codePoint <= 0x202E)
                 || (codePoint >= 0x2066 && codePoint <= 0x2069);
+    }
+
+    private static boolean isInvisibleCodePoint(int codePoint) {
+        return Character.isWhitespace(codePoint)
+                || Character.isSpaceChar(codePoint)
+                || Character.getType(codePoint) == Character.FORMAT
+                || isDefaultIgnorableCombiningMark(codePoint);
+    }
+
+    private static boolean isDefaultIgnorableCombiningMark(int codePoint) {
+        return codePoint == 0x034F
+                || (codePoint >= 0x180B && codePoint <= 0x180D)
+                || codePoint == 0x180F
+                || (codePoint >= 0xFE00 && codePoint <= 0xFE0F)
+                || (codePoint >= 0xE0100 && codePoint <= 0xE01EF);
     }
 
     private static int encodedLength(String value) throws IOException {

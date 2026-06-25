@@ -1,5 +1,10 @@
 # Changes
 
+## 2026-06-25
+
+- Rejected Unicode invisible-only fridge items at both input and stored-file
+  validation boundaries while preserving visible joined emoji.
+
 ## 2026-06-21
 
 - Bound hosted and contributor verification to `/usr/bin/make` and added an
