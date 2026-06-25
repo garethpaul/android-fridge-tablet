@@ -9,7 +9,7 @@ esac
 BUILD_DIR=$(mktemp -d "${TMPDIR:-/tmp}/android-fridge-host-tests.XXXXXX")
 trap 'rm -rf "$BUILD_DIR"' EXIT HUP INT TERM
 
-javac -source 1.7 -target 1.7 -d "$BUILD_DIR" \
+javac -source 1.7 -target 1.7 -encoding UTF-8 -d "$BUILD_DIR" \
   "$ROOT_DIR/app/src/main/java/garethpaul/com/fridge/ItemPolicy.java" \
   "$ROOT_DIR/app/src/main/java/garethpaul/com/fridge/ItemStore.java" \
   "$ROOT_DIR/app/src/main/java/garethpaul/com/fridge/ItemFileTransaction.java" \

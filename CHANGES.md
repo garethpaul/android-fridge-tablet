@@ -2,6 +2,8 @@
 
 ## 2026-06-25
 
+- Made the dependency-free item-store host test compile its Unicode fixtures
+  with an explicit UTF-8 source encoding instead of inheriting the host locale.
 - Rejected Unicode invisible-only fridge items at both input and stored-file
   validation boundaries while preserving visible joined emoji.
 
