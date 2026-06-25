@@ -102,6 +102,7 @@ require_literal "$WRAPPER_PROPERTIES" 'distributionSha256Sum=1d7c28b3731906fd1b2
 
 [ -f "$ROOT_DIR/app/src/androidTest/java/garethpaul/com/fridge/ItemStoreInstrumentationTest.java" ] || fail 'Storage instrumentation coverage missing.'
 [ -x "$ROOT_DIR/scripts/test-item-store.sh" ] || fail 'Host storage test gate missing or not executable.'
+require_literal "$ROOT_DIR/scripts/test-item-store.sh" 'javac -source 1.7 -target 1.7 -encoding UTF-8 -d "$BUILD_DIR"' 'Host storage test must compile Unicode fixtures as UTF-8.'
 [ -x "$ROOT_DIR/scripts/test-check-baseline.sh" ] || fail 'Mutation gate missing or not executable.'
 [ -x "$ROOT_DIR/scripts/check-historical-baseline.sh" ] || fail 'Historical baseline gate missing or not executable.'
 [ -x "$ROOT_DIR/scripts/test-makefile-root.sh" ] || fail 'Make authority harness missing or not executable.'
