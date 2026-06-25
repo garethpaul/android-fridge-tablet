@@ -5,7 +5,7 @@
 Fridge items stay in the application-private files directory with Android
 backup disabled. Reads reject malformed UTF-8, non-LF line boundaries,
 oversized files, excessive item counts, overlong items, control characters,
-symlinks, and non-regular files.
+Unicode invisible-only items, symlinks, and non-regular files.
 Writes use a same-directory temporary file, restrict it to owner access, flush
 and sync its contents before replacement, and retain the previous file until a
 later read validates the new target. Logs use fixed messages and never include

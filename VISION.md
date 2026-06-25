@@ -81,6 +81,9 @@ features need clear privacy notes and opt-in behavior.
 
 The current app should remain local-first unless a separate design explains the
 data flow, credentials, and user controls.
+Fridge entries should retain Unicode-visible item content while rejecting
+separator-, format-, or default-ignorable-mark-only rows that render as blank
+list entries.
 
 ## What We Will Not Merge (For Now)
 

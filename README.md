@@ -108,6 +108,8 @@ and explicit unexecuted rows.
 - Fridge items are stored in the app's internal files directory, so the app does not request external storage permissions.
 - Fridge item input is trimmed before persistence, and whitespace-only entries
   are ignored.
+- Unicode invisible-only entries are rejected across both new input and stored
+  file validation, while visible joined emoji remain valid fridge items.
 - Line separators in fridge item input are converted to spaces so line-oriented
   storage reloads each submitted item as one list entry.
 - A missing item input view is treated as empty input so stale tablet layouts
