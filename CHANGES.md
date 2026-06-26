@@ -1,5 +1,61 @@
 # Changes
 
+## 2026-06-26 02:26 - P1 - Keep write results aligned with durable contents
+
+### Summary
+Removed the throwable post-install permission step that could report a failed
+write after the new fridge file was already installed, causing the UI model to
+roll back while disk contents advanced.
+
+### Work completed
+- Added an injectable file-permission boundary for host regression coverage.
+- Kept owner-only hardening on the same-directory temporary file before rename.
+- Ended successful writes immediately after the replacement transaction reports
+  `INSTALLED`.
+- Added portable ordering contracts, hostile mutations, and maintenance docs.
+
+### Threads
+- Started: none.
+- Continued: direct storage transaction audit — completed implementation and
+  local regression coverage.
+- Stopped: none.
+
+### Files changed
+- `app/src/main/java/garethpaul/com/fridge/ItemStore.java` — makes permission
+  operations injectable and removes post-install hardening.
+- `scripts/host-tests/garethpaul/com/fridge/ItemStoreHostTest.java` — proves a
+  successful installed write is not followed by target permission mutation.
+- `scripts/check-baseline.sh` and `scripts/test-check-baseline.sh` — enforce and
+  mutation-test the ordering invariant.
+- Documentation and plan files — record the transactional boundary.
+
+### Validation
+- Red-first `LC_ALL=C scripts/test-item-store.sh` — failed because the permission
+  seam did not exist, then passed after implementation.
+- `LC_ALL=C` and `LC_ALL=C.UTF-8` host suites — passed.
+- `/usr/bin/make root-test|lint|test|build|verify|check` under both locales —
+  passed; local SDK-backed Gradle steps were explicitly skipped.
+- The same six Make targets from `/tmp` via the absolute Makefile path — passed.
+- One follow-up external check used `$PWD` after `cd /tmp` and failed to find
+  `/tmp/Makefile`; the corrected captured-path invocation passed.
+- Fourteen hostile static mutations, shell syntax checks, and
+  `git diff --check` — passed.
+- Hosted Gradle, CodeQL, exact-head review, and merge evidence remains the next
+  action for this cycle.
+
+### Bugs / findings
+- P1: `ItemStore.write()` could throw from `hardenPermissions(target)` after
+  durable installation, making `ItemListTransaction` preserve the old visible
+  model even though the new file was already on disk.
+
+### Blockers
+- None for portable validation; local Android SDK availability is checked by the
+  canonical Make gate.
+
+### Next action
+- Run the full local and hosted exact-head validation matrix, then review and
+  merge the focused PR.
+
 ## 2026-06-25
 
 - Made the dependency-free item-store host test compile its Unicode fixtures

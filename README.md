@@ -106,6 +106,9 @@ and explicit unexecuted rows.
 - No required secret or credential file was identified in the repository scan. If you add integrations later, keep secrets out of git.
 - This legacy Android baseline pins Android build-tools 24.0.3 and preserves target SDK 21.
 - Fridge items are stored in the app's internal files directory, so the app does not request external storage permissions.
+- Writes harden the same-directory temporary file before installation and do
+  not perform throwable permission changes after the durable target is
+  installed, keeping disk and the visible transaction result consistent.
 - Fridge item input is trimmed before persistence, and whitespace-only entries
   are ignored.
 - Unicode invisible-only entries are rejected across both new input and stored
@@ -167,6 +170,8 @@ and explicit unexecuted rows.
 
 - See `docs/plans/2026-06-14-fridge-device-verification-checklist.md` for the
   tablet/storage evidence matrix and runtime non-claims.
+- See `docs/plans/2026-06-26-precommit-permission-hardening.md` for the
+  persist-before-commit permission ordering regression and validation record.
 - See `docs/plans/2026-06-14-atomic-item-file-replacement.md` for the tested
   backup, installation, rollback, and startup recovery contract.
 - See `docs/plans/2026-06-15-fridge-list-persistence-transaction-tests.md` for

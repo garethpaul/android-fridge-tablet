@@ -26,6 +26,8 @@ Priority:
 - Keep line separators in fridge item input from changing item boundaries after
   reload
 - Keep visible fridge items consistent with successful durable writes
+- Finish throwable permission hardening before durable installation so write
+  results cannot diverge from installed contents
 - Keep item creation safe when legacy input views are missing
 - Keep list view setup safe when stale tablet layouts omit the list view
 - Keep date header updates safe when stale tablet layouts omit the header

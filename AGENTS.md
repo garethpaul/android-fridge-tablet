@@ -60,6 +60,9 @@
   canonical or temporary storage files.
 - Fridge item input is trimmed before persistence, and whitespace-only entries are ignored.
 - Persistence exceptions restore the exact fridge list before propagation.
+- Complete all throwable permission hardening on the temporary file before
+  durable installation so a successful replacement cannot be reported as a
+  failed write to the UI transaction.
 - Line separators in fridge item input are converted to spaces so one submitted
   item remains one persisted item after reload.
 - A missing item input view is treated as empty input so stale tablet layouts do not crash item creation or keyboard setup.

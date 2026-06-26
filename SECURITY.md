@@ -10,6 +10,9 @@ Writes use a same-directory temporary file, restrict it to owner access, flush
 and sync its contents before replacement, and retain the previous file until a
 later read validates the new target. Logs use fixed messages and never include
 item contents, paths, or exception text.
+Permission hardening completes on the temporary file before replacement; after
+installation, the write path performs no throwable step that could report a
+rollback after durable contents have already advanced.
 
 The Java file API does not expose a portable directory fsync on this preserved
 API 21 baseline. File contents are synced before rename and a backup is retained
@@ -62,6 +65,8 @@ Helpful reports include:
   paths. Storage permission failures remain inside those reviewed fail-closed
   and rollback boundaries instead of crashing the activity.
 - Persistence exceptions restore the exact fridge list before propagation.
+- Permission hardening must finish before durable replacement so the UI cannot
+  roll back its model after the new target file has already been installed.
 - An unavailable app files directory is rejected before canonical or temporary
   storage files are constructed.
 - A 1 MiB item-storage limit rejects oversized existing files before parsing

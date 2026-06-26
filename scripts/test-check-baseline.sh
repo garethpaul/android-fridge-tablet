@@ -29,6 +29,10 @@ expect_rejected() {
 
 expect_rejected no-fsync \
   "perl -0pi -e 's/            stream\\.getFD\\(\\)\\.sync\\(\\);\\n//' app/src/main/java/garethpaul/com/fridge/ItemStore.java"
+expect_rejected post-install-permission-mutation \
+  "perl -0pi -e 's/(            throw new IOException\(\"Unable to replace fridge item file\"\);\n        }\n)(    }\n\n    private File child)/\$1        hardenPermissions(target);\n\$2/' app/src/main/java/garethpaul/com/fridge/ItemStore.java"
+expect_rejected no-permission-commit-regression \
+  "perl -0pi -e 's/        test\\.doesNotReportFailureAfterInstallingHardenedTemporaryFile\\(\\);\\n//' scripts/host-tests/garethpaul/com/fridge/ItemStoreHostTest.java"
 expect_rejected lenient-decoder \
   "perl -0pi -e 's/\\.onMalformedInput\\(CodingErrorAction\\.REPORT\\)/.onMalformedInput(CodingErrorAction.REPLACE)/' app/src/main/java/garethpaul/com/fridge/ItemStore.java"
 expect_rejected no-canonical-check \
