@@ -44,7 +44,7 @@ expect_rejected permissive-line-boundary \
 expect_rejected unbounded-items \
   "perl -0pi -e 's/MAX_ITEMS = 512/MAX_ITEMS = 500000/' app/src/main/java/garethpaul/com/fridge/ItemPolicy.java"
 expect_rejected unicode-separators-visible \
-  "perl -0pi -e 's/[[:space:]]*\\|\\| Character\.isSpaceChar\(codePoint\)//' app/src/main/java/garethpaul/com/fridge/ItemPolicy.java"
+  "perl -0pi -e 's/Character\.isSpaceChar\(codePoint\)/false/g' app/src/main/java/garethpaul/com/fridge/ItemPolicy.java"
 expect_rejected unicode-format-visible \
   "perl -0pi -e 's/[[:space:]]*\\|\\| Character\.getType\(codePoint\) == Character\.FORMAT//' app/src/main/java/garethpaul/com/fridge/ItemPolicy.java"
 expect_rejected unicode-variation-selectors-visible \

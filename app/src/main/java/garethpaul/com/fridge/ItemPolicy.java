@@ -26,9 +26,29 @@ final class ItemPolicy {
 
         String value = input.toString()
                 .replace('\r', ' ')
-                .replace('\n', ' ')
-                .trim();
+                .replace('\n', ' ');
+        value = trimUnicodeSpace(value);
         return isValidItem(value) ? value : null;
+    }
+
+    private static String trimUnicodeSpace(String value) {
+        int start = 0;
+        int end = value.length();
+        while (start < end) {
+            int codePoint = value.codePointAt(start);
+            if (!Character.isWhitespace(codePoint) && !Character.isSpaceChar(codePoint)) {
+                break;
+            }
+            start += Character.charCount(codePoint);
+        }
+        while (end > start) {
+            int codePoint = value.codePointBefore(end);
+            if (!Character.isWhitespace(codePoint) && !Character.isSpaceChar(codePoint)) {
+                break;
+            }
+            end -= Character.charCount(codePoint);
+        }
+        return value.substring(start, end);
     }
 
     static void validateItems(List<String> items) throws IOException {
