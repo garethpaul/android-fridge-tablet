@@ -16,6 +16,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 final class ItemStore {
+    interface FilePermissions {
+        void harden(File file) throws IOException;
+    }
+
+    private static final FilePermissions OWNER_ONLY_PERMISSIONS = new FilePermissions() {
+        @Override
+        public void harden(File file) throws IOException {
+            if (!file.setReadable(false, false)
+                    || !file.setWritable(false, false)
+                    || !file.setExecutable(false, false)
+                    || !file.setReadable(true, true)
+                    || !file.setWritable(true, true)) {
+                throw new IOException("Unable to restrict fridge storage permissions");
+            }
+        }
+    };
+
     private static final Charset UTF_8 = Charset.forName("UTF-8");
     private static final String TARGET_NAME = "food.txt";
     private static final String TEMPORARY_NAME = "food.txt.tmp";
@@ -25,8 +42,13 @@ final class ItemStore {
     private final File target;
     private final File temporary;
     private final File backup;
+    private final FilePermissions filePermissions;
 
     ItemStore(File filesDirectory) throws IOException {
+        this(filesDirectory, OWNER_ONLY_PERMISSIONS);
+    }
+
+    ItemStore(File filesDirectory, FilePermissions filePermissions) throws IOException {
         if (filesDirectory == null || !filesDirectory.isDirectory()) {
             throw new IOException("Fridge storage directory unavailable");
         }
@@ -34,6 +56,7 @@ final class ItemStore {
         target = child(TARGET_NAME);
         temporary = child(TEMPORARY_NAME);
         backup = child(BACKUP_NAME);
+        this.filePermissions = filePermissions;
     }
 
     ArrayList<String> read() throws IOException {
@@ -86,7 +109,6 @@ final class ItemStore {
             }
             throw new IOException("Unable to replace fridge item file");
         }
-        hardenPermissions(target);
     }
 
     private File child(String name) throws IOException {
@@ -220,13 +242,7 @@ final class ItemStore {
     }
 
     private void hardenPermissions(File file) throws IOException {
-        if (!file.setReadable(false, false)
-                || !file.setWritable(false, false)
-                || !file.setExecutable(false, false)
-                || !file.setReadable(true, true)
-                || !file.setWritable(true, true)) {
-            throw new IOException("Unable to restrict fridge storage permissions");
-        }
+        filePermissions.harden(file);
     }
 
     private static final class BoundedInputStream extends InputStream {

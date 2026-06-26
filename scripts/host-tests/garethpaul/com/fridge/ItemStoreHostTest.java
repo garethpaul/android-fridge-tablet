@@ -14,6 +14,7 @@ public final class ItemStoreHostTest {
     public static void main(String[] args) throws Exception {
         ItemStoreHostTest test = new ItemStoreHostTest();
         test.roundTripsUtf8WithOwnerOnlyPermissions();
+        test.doesNotReportFailureAfterInstallingHardenedTemporaryFile();
         test.rejectsMalformedUtf8();
         test.rejectsCarriageReturnBoundariesAndOversizedLines();
         test.rejectsControlCharactersAndOversizedCollections();
@@ -43,6 +44,29 @@ public final class ItemStoreHostTest {
                 assertFalse(permissions.contains(PosixFilePermission.OTHERS_READ), "other read must be disabled");
                 assertFalse(permissions.contains(PosixFilePermission.OTHERS_WRITE), "other write must be disabled");
             }
+        } finally {
+            deleteTree(root);
+        }
+    }
+
+    private void doesNotReportFailureAfterInstallingHardenedTemporaryFile() throws Exception {
+        File root = temporaryDirectory("permission-commit");
+        try {
+            final ArrayList<String> hardenedFiles = new ArrayList<String>();
+            ItemStore store = new ItemStore(root, new ItemStore.FilePermissions() {
+                @Override
+                public void harden(File file) throws IOException {
+                    hardenedFiles.add(file.getName());
+                    if ("food.txt".equals(file.getName())) {
+                        throw new IOException("post-install permission mutation");
+                    }
+                }
+            });
+
+            store.write(Arrays.asList("milk"));
+
+            assertEquals(Arrays.asList("food.txt.tmp"), hardenedFiles);
+            assertEquals("milk\n", new String(readBytes(new File(root, "food.txt")), "UTF-8"));
         } finally {
             deleteTree(root);
         }

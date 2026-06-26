@@ -73,6 +73,13 @@ require_literal "$ITEM_STORE" 'stream.getFD().sync();' 'Temporary item data must
 require_literal "$ITEM_STORE" 'readFile(backup)' 'Backup must be validated before recovery.'
 require_literal "$ITEM_STORE" 'setReadable(false, false)' 'Owner-only storage permission hardening missing.'
 require_literal "$ITEM_STORE" 'new ItemFileTransaction().replace(' 'Atomic replacement transaction missing.'
+require_literal "$ITEM_STORE" 'interface FilePermissions' 'Injectable permission boundary missing.'
+require_literal "$HOST_STORAGE_TEST" 'test.doesNotReportFailureAfterInstallingHardenedTemporaryFile();' 'Post-install permission regression must execute.'
+
+write_body=$(sed -n '/    void write(List<String> items)/,/    private File child/p' "$ITEM_STORE")
+if printf '%s\n' "$write_body" | grep -Fq 'hardenPermissions(target)'; then
+  fail 'ItemStore.write must not report failure after installing the hardened temporary file.'
+fi
 
 require_literal "$LIST_TRANSACTION" 'synchronized (items)' 'List mutation ownership must remain serialized.'
 require_literal "$LIST_TRANSACTION" 'new ArrayList<String>(items)' 'Persistence must operate on a proposed snapshot.'
@@ -110,6 +117,7 @@ require_literal "$ROOT_DIR/Makefile" 'MAKEFLAGS must not be overridden' 'Make mo
 require_literal "$ROOT_DIR/Makefile" 'MAKEFILES must be empty' 'Make startup-file guard missing.'
 require_literal "$ROOT_DIR/Makefile" 'scripts/test-makefile-root.sh' 'Make authority harness is not in the default gate.'
 require_literal "$ROOT_DIR/docs/plans/2026-06-21-android-fridge-system-make-boundary.md" 'Status: Completed' 'Make authority plan must be completed.'
+require_literal "$ROOT_DIR/docs/plans/2026-06-26-precommit-permission-hardening.md" 'Status: Completed' 'Pre-commit permission hardening plan must be completed.'
 require_literal "$ROOT_DIR/scripts/test-makefile-root.sh" 'later fake-shell bypass boundary reproduction' 'Make authority harness must reproduce later fake-shell boundary.'
 require_literal "$ROOT_DIR/scripts/test-makefile-root.sh" 'later double-colon append boundary reproduction' 'Make authority harness must reproduce double-colon append boundary.'
 require_literal "$ROOT_DIR/scripts/test-makefile-root.sh" 'startup parse-time boundary reproduction' 'Make authority harness must reproduce startup parse-time boundary.'
