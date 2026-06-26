@@ -20,6 +20,7 @@ public final class ItemStoreHostTest {
         test.rejectsControlCharactersAndOversizedCollections();
         test.rejectsUnicodeInvisibleOnlyItems();
         test.rejectsCombiningMarkOnlyItems();
+        test.trimsUnicodeSpaceAroundVisibleItems();
         test.preservesVisibleJoinedEmojiItems();
         test.rejectsSymlinkedStorageFiles();
         test.recoversVerifiedBackupWhenTargetIsCorrupt();
@@ -152,6 +153,10 @@ public final class ItemStoreHostTest {
 
         assertNull(ItemPolicy.normalizeInput(combiningMarks));
         assertFalse(ItemPolicy.isValidItem(combiningMarks), "combining-mark-only item must be invalid");
+    }
+
+    private void trimsUnicodeSpaceAroundVisibleItems() {
+        assertEquals("milk", ItemPolicy.normalizeInput("\u2003milk\u00A0"));
     }
 
     private void preservesVisibleJoinedEmojiItems() {

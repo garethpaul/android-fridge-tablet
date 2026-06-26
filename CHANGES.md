@@ -1,5 +1,13 @@
 # Changes
 
+## 2026-06-26 - P2 - Trim Unicode space around fridge items
+
+- Replaced ASCII-only `String.trim()` input handling with code-point-aware
+  leading and trailing Unicode-space trimming.
+- Preserved internal emoji joiners, variation selectors, combining marks, and
+  ordinary item spacing.
+- Added a red-first host assertion for EM SPACE and NO-BREAK SPACE padding.
+
 ## 2026-06-26 11:35 - P2 - Reject standalone combining marks
 
 ### Summary
