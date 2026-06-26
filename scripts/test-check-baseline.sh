@@ -49,6 +49,10 @@ expect_rejected unicode-format-visible \
   "perl -0pi -e 's/[[:space:]]*\\|\\| Character\.getType\(codePoint\) == Character\.FORMAT//' app/src/main/java/garethpaul/com/fridge/ItemPolicy.java"
 expect_rejected unicode-variation-selectors-visible \
   "perl -0pi -e 's/[[:space:]]*\\|\\| \\(codePoint >= 0xFE00 && codePoint <= 0xFE0F\\)//' app/src/main/java/garethpaul/com/fridge/ItemPolicy.java"
+expect_rejected unicode-combining-marks-visible \
+  "perl -0pi -e 's/ && !isCombiningMark\\(codePoint\\)//' app/src/main/java/garethpaul/com/fridge/ItemPolicy.java"
+expect_rejected no-combining-mark-regression \
+  "perl -0pi -e 's/        test\\.rejectsCombiningMarkOnlyItems\\(\\);\\n//' scripts/host-tests/garethpaul/com/fridge/ItemStoreHostTest.java"
 expect_rejected exported-launcher-disabled \
   "perl -0pi -e 's/android:exported=\"true\"/android:exported=\"false\"/' app/src/main/AndroidManifest.xml"
 expect_rejected persistent-checkout-credentials \

@@ -113,6 +113,8 @@ and explicit unexecuted rows.
   are ignored.
 - Unicode invisible-only entries are rejected across both new input and stored
   file validation, while visible joined emoji remain valid fridge items.
+- Combining-mark-only entries are rejected, while decomposed text and keycap
+  emoji with visible base characters remain valid.
 - Line separators in fridge item input are converted to spaces so line-oriented
   storage reloads each submitted item as one list entry.
 - A missing item input view is treated as empty input so stale tablet layouts

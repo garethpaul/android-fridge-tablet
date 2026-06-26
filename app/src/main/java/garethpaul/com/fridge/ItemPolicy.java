@@ -63,7 +63,7 @@ final class ItemPolicy {
             if (isProhibitedCodePoint(codePoint)) {
                 return false;
             }
-            if (!isInvisibleCodePoint(codePoint)) {
+            if (!isInvisibleCodePoint(codePoint) && !isCombiningMark(codePoint)) {
                 hasVisibleContent = true;
             }
             offset += Character.charCount(codePoint);
@@ -100,6 +100,13 @@ final class ItemPolicy {
                 || codePoint == 0x180F
                 || (codePoint >= 0xFE00 && codePoint <= 0xFE0F)
                 || (codePoint >= 0xE0100 && codePoint <= 0xE01EF);
+    }
+
+    private static boolean isCombiningMark(int codePoint) {
+        int type = Character.getType(codePoint);
+        return type == Character.NON_SPACING_MARK
+                || type == Character.COMBINING_SPACING_MARK
+                || type == Character.ENCLOSING_MARK;
     }
 
     private static int encodedLength(String value) throws IOException {
