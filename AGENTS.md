@@ -59,6 +59,7 @@
 - An unavailable app files directory must be rejected before constructing
   canonical or temporary storage files.
 - Fridge item input is trimmed before persistence, and whitespace-only entries are ignored.
+- Combining-mark-only fridge items are rejected, while marks attached to visible text or emoji bases remain valid.
 - Persistence exceptions restore the exact fridge list before propagation.
 - Complete all throwable permission hardening on the temporary file before
   durable installation so a successful replacement cannot be reported as a

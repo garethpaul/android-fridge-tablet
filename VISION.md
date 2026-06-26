@@ -86,6 +86,8 @@ data flow, credentials, and user controls.
 Fridge entries should retain Unicode-visible item content while rejecting
 separator-, format-, or default-ignorable-mark-only rows that render as blank
 list entries.
+Combining marks must modify visible text or emoji bases rather than form a
+standalone fridge row.
 
 ## What We Will Not Merge (For Now)
 

@@ -19,6 +19,7 @@ public final class ItemStoreHostTest {
         test.rejectsCarriageReturnBoundariesAndOversizedLines();
         test.rejectsControlCharactersAndOversizedCollections();
         test.rejectsUnicodeInvisibleOnlyItems();
+        test.rejectsCombiningMarkOnlyItems();
         test.preservesVisibleJoinedEmojiItems();
         test.rejectsSymlinkedStorageFiles();
         test.recoversVerifiedBackupWhenTargetIsCorrupt();
@@ -146,11 +147,24 @@ public final class ItemStoreHostTest {
         }
     }
 
+    private void rejectsCombiningMarkOnlyItems() {
+        String combiningMarks = "\u0301\u20DD";
+
+        assertNull(ItemPolicy.normalizeInput(combiningMarks));
+        assertFalse(ItemPolicy.isValidItem(combiningMarks), "combining-mark-only item must be invalid");
+    }
+
     private void preservesVisibleJoinedEmojiItems() {
         String joinedEmoji = "\uD83D\uDC69\u200D\uD83C\uDF73";
+        String decomposedText = "cafe\u0301";
+        String keycapEmoji = "1\uFE0F\u20E3";
 
         assertEquals(joinedEmoji, ItemPolicy.normalizeInput(joinedEmoji));
         assertTrue(ItemPolicy.isValidItem(joinedEmoji), "visible joined emoji must remain valid");
+        assertEquals(decomposedText, ItemPolicy.normalizeInput(decomposedText));
+        assertTrue(ItemPolicy.isValidItem(decomposedText), "combining marks attached to text must remain valid");
+        assertEquals(keycapEmoji, ItemPolicy.normalizeInput(keycapEmoji));
+        assertTrue(ItemPolicy.isValidItem(keycapEmoji), "combining marks attached to emoji bases must remain valid");
     }
 
     private void rejectsSymlinkedStorageFiles() throws Exception {

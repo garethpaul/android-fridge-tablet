@@ -1,5 +1,42 @@
 # Changes
 
+## 2026-06-26 11:35 - P2 - Reject standalone combining marks
+
+### Summary
+Rejected combining-mark-only fridge items that could create effectively blank
+persisted rows while preserving decomposed text and keycap emoji with visible
+base characters.
+
+### Work completed
+- Added Unicode mark-category handling to shared item visibility validation.
+- Added red-first host regressions for standalone marks and positive coverage
+  for marks attached to visible text and emoji bases.
+- Extended static and hostile mutation contracts, repository guidance, and the
+  completed implementation plan.
+
+### Validation
+- Red-first `LC_ALL=C ./scripts/test-item-store.sh` failed before implementation
+  because standalone combining marks normalized successfully, then passed.
+- All six documented Make aliases passed from the repository root and through
+  the absolute Makefile path from `/tmp`; SDK-backed Gradle steps skipped
+  because no Android SDK is configured locally.
+- The host suite passed under `LC_ALL=C`, and 16 hostile static
+  mutations passed before final syntax, diff, artifact, and credential audits.
+- Hosted Gradle, CodeQL, exact-head review, and merge evidence remains the next
+  action for this cycle.
+
+### Bugs / findings
+- P2: `ItemPolicy` counted ordinary Unicode mark categories as visible content,
+  allowing a row made only from accents or enclosing marks.
+
+### Blockers
+- None for portable validation; Android SDK-backed checks may be skipped by the
+  canonical Make gate when the SDK is unavailable.
+
+### Next action
+- Push the validated branch, review the immutable PR head, and merge only after
+  hosted checks are green.
+
 ## 2026-06-26 02:26 - P1 - Keep write results aligned with durable contents
 
 ### Summary
